@@ -11,5 +11,6 @@ await Promise.all([
   copyFile(new URL('../root.css', import.meta.url), new URL('./root.css', output)),
   copyFile(new URL('../p2p/index.html', import.meta.url), new URL('./index.html', p2pOutput)),
   copyFile(new URL('../p2p/app.js', import.meta.url), new URL('./app.js', p2pOutput)),
+  copyFile(new URL('../p2p/file-drop.js', import.meta.url), new URL('./file-drop.js', p2pOutput)),
   copyFile(new URL('../p2p/styles.css', import.meta.url), new URL('./styles.css', p2pOutput)),
 ]);

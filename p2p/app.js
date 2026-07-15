@@ -1,3 +1,5 @@
+import { collectTransferFiles } from './file-drop.js';
+
 const MAX_FILE_SIZE = 250 * 1024 * 1024;
 const MAX_RETAINED_FILE_BYTES = 300 * 1024 * 1024;
 const MAX_TEXT_SIZE = 64 * 1024;
@@ -40,6 +42,7 @@ let reconnectBlocked = false;
 let isInitiator = false;
 let incomingFile = null;
 let transferBusy = false;
+let preparationBusy = false;
 let pendingCandidates = [];
 let textClock = 0;
 let lastTextVersion = { clock: 0, sender: '' };
@@ -55,7 +58,7 @@ function setPresence(label, state = 'waiting') {
 
 function setFilesEnabled(enabled) {
   elements.fileInput.disabled = !enabled;
-  elements.dropCopy.textContent = enabled ? 'Drop files anywhere here' : 'Waiting for the other device';
+  elements.dropCopy.textContent = enabled ? 'Drop files or folders here' : 'Waiting for the other device';
 }
 
 function signalingUrl() {
@@ -615,10 +618,23 @@ elements.fileSpace.addEventListener('dragover', (event) => {
   if (!elements.fileInput.disabled) elements.fileSpace.classList.add('dragging');
 });
 elements.fileSpace.addEventListener('dragleave', () => elements.fileSpace.classList.remove('dragging'));
-elements.fileSpace.addEventListener('drop', (event) => {
+elements.fileSpace.addEventListener('drop', async (event) => {
   event.preventDefault();
   elements.fileSpace.classList.remove('dragging');
-  if (!elements.fileInput.disabled) sendFiles([...event.dataTransfer.files]);
+  if (elements.fileInput.disabled || transferBusy || preparationBusy) return;
+  preparationBusy = true;
+  try {
+    const files = await collectTransferFiles(event.dataTransfer, ({ name, complete, total }) => {
+      showProgress(`Preparing ${name}`, complete, total);
+    });
+    preparationBusy = false;
+    await sendFiles(files);
+  } catch (error) {
+    elements.transfer.hidden = true;
+    reportError(error);
+  } finally {
+    preparationBusy = false;
+  }
 });
 
 window.addEventListener('beforeunload', () => {

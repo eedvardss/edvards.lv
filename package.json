@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "npm run build && tsc --noEmit && wrangler deploy --dry-run",
+    "test": "node --test test/*.test.mjs",
+    "check": "npm test && npm run build && tsc --noEmit && wrangler deploy --dry-run",
     "deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
