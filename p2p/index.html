@@ -4,14 +4,52 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#10120f" />
+    <meta name="theme-color" content="#0b0b0b" />
     <meta name="referrer" content="no-referrer" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'none'; connect-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'" />
-    <title>P2P — private device transfer</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'none'; connect-src 'self' wss://manbesi.lv; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'" />
+    <title>Private workspace</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main id="app"></main>
+    <main class="workspace">
+      <header class="topbar">
+        <a class="mark" href="/" aria-label="Home">p2p</a>
+        <div class="presence" aria-live="polite">
+          <span class="presence-dot" id="presence-dot"></span>
+          <span id="presence-label">Connecting</span>
+        </div>
+      </header>
+
+      <section class="text-space" aria-labelledby="text-title">
+        <div class="section-line">
+          <h1 id="text-title">Shared text</h1>
+          <span id="sync-label">Waiting</span>
+        </div>
+        <textarea
+          id="shared-text"
+          maxlength="65536"
+          spellcheck="true"
+          autocomplete="off"
+          placeholder="Paste or type here. It appears on the other device as you type."
+        ></textarea>
+      </section>
+
+      <section class="file-space" id="file-space" aria-labelledby="files-title">
+        <div class="section-line">
+          <h2 id="files-title">Files</h2>
+          <label class="file-button" for="file-input">
+            <input id="file-input" type="file" multiple disabled />
+            Add files
+          </label>
+        </div>
+        <div class="drop-copy" id="drop-copy">Drop files anywhere here</div>
+        <ul class="file-list" id="file-list"></ul>
+        <div class="transfer" id="transfer" hidden>
+          <div class="transfer-copy"><span id="transfer-label"></span><span id="transfer-value"></span></div>
+          <div class="transfer-track"><span id="transfer-bar"></span></div>
+        </div>
+      </section>
+    </main>
     <script type="module" src="./app.js"></script>
   </body>
 </html>

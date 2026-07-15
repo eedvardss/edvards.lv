@@ -1,29 +1,26 @@
 # P2P
 
-Question: can `manbesi.lv` host a useful private text/file transfer tool without adding an application server or uploading payloads anywhere?
+Question: can `manbesi.lv` provide an owner-only live text/file workspace without uploading payloads anywhere?
 
-This app uses a WebRTC data channel and a manual one-time handshake. It lives at `/p2p/`; the site root is intentionally blank.
+The page is protected by Cloudflare Access. Two authenticated devices automatically meet through a bounded Durable Object signaling room, then exchange live text and file bytes over an encrypted WebRTC DataChannel. Signaling never carries text contents, filenames, or file bytes.
 
-## Run
+There are no pairing codes or transfer buttons. The first connected device owns the initial text state; after that, edits sync live with a deterministic last-write-wins rule. Files stay peer-to-peer and appear with a single save action on the receiving device. The app lives at `/p2p/`; the site root is intentionally blank.
+
+## Local preview
 
 From the repository root:
 
 ```sh
-python3 -m http.server 4173
+npm install
+npx wrangler dev --local
 ```
 
-Open <http://localhost:4173/p2p/>.
-
-To test the connection, open the page in two browsers or devices:
-
-1. Device A creates an invitation and copies its code.
-2. Device B pastes the invitation and uses it, then copies the generated response.
-3. Device A pastes the response and uses it.
-4. Send text or files in either direction.
+Open the local URL at `/p2p/`. The interface renders locally, but signaling intentionally stays unavailable without a valid `ACCESS_CONFIG` secret and signed Cloudflare Access assertion. End-to-end testing happens on the protected deployment.
 
 ## Boundaries
 
 - Payloads travel over an encrypted WebRTC peer connection and are not uploaded to the static website.
-- The pairing codes are not sent anywhere by this app. They contain short-lived connection metadata, so exchange them privately.
+- The Durable Object is signaling-only, admits exactly two sockets for the verified owner identity, rejects stale sequences, and rate-limits malformed or excessive signaling.
+- The Worker independently validates the Access JWT signature, issuer, audience, expiry, subject, and exact owner email before opening signaling.
 - A public STUN server is used to discover a route between networks. There is no TURN relay, so some strict firewalls or carrier-grade NAT setups will fail.
 - Incoming files are assembled in browser memory. The app caps each file at 250 MB.

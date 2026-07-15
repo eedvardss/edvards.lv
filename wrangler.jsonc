@@ -17,6 +17,20 @@
     "binding": "ASSETS",
     "run_worker_first": true
   },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SIGNALING_ROOM",
+        "class_name": "SignalingRoom"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["SignalingRoom"]
+    }
+  ],
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1
