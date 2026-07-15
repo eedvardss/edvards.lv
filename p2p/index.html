@@ -6,7 +6,7 @@
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#0b0b0b" />
     <meta name="referrer" content="no-referrer" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'none'; connect-src 'self' wss://manbesi.lv; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'none'; connect-src 'self' wss://manbesi.lv; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'self'; worker-src 'self'" />
     <title>Private workspace</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -20,13 +20,22 @@
         </div>
       </header>
 
+      <section class="pairing" id="pairing" hidden aria-live="polite">
+        <div>
+          <div class="pairing-label">Safety code</div>
+          <output id="safety-code">Generating…</output>
+          <p id="pairing-copy">Compare this code on both devices.</p>
+        </div>
+        <button id="approve-device" type="button" hidden disabled>Approve device</button>
+      </section>
+
       <section class="text-space" aria-labelledby="text-title">
         <div class="section-line">
           <h1 id="text-title">Shared text</h1>
           <span id="sync-label">Waiting</span>
         </div>
         <textarea
-          id="shared-text"
+          id="shared-text" disabled
           maxlength="65536"
           spellcheck="true"
           autocomplete="off"

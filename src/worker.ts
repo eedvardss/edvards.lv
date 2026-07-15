@@ -19,6 +19,8 @@ const SECURITY_HEADERS = {
 
 type AppEnv = Env & {
   ACCESS_CONFIG?: string;
+  TURN_KEY_API_TOKEN?: string;
+  TURN_KEY_ID?: string;
 };
 
 type AccessConfig = {
@@ -34,6 +36,8 @@ type AccessClaims = {
 };
 
 type SocketAttachment = AccessClaims & {
+  approved: boolean;
+  canApprove: boolean;
   generation: number;
   lastSeenAt: number;
   lastSequence: number;
@@ -48,6 +52,7 @@ type Signal = {
 } & (
   | { type: 'description'; description: { type: 'offer' | 'answer'; sdp: string } }
   | { type: 'candidate'; candidate: IceCandidate | null }
+  | { type: 'approval'; decision: 'approve' | 'reject' }
 );
 
 type RateWindow = { count: number; startedAt: number };
@@ -110,6 +115,8 @@ export class SignalingRoom extends DurableObject<AppEnv> {
     const [client, server] = Object.values(pair);
     const attachment: SocketAttachment = {
       ...claims,
+      approved: false,
+      canApprove: peers.length === 0,
       peerId: crypto.randomUUID(),
       generation: currentGeneration,
       lastSeenAt: now,
@@ -127,13 +134,21 @@ export class SignalingRoom extends DurableObject<AppEnv> {
       const nextGeneration = currentGeneration + 1;
       await this.ctx.storage.put('generation', nextGeneration);
       const existingAttachment = peers[0].deserializeAttachment() as SocketAttachment;
+      existingAttachment.approved = false;
+      existingAttachment.canApprove = true;
       existingAttachment.generation = nextGeneration;
       existingAttachment.lastSequence = 0;
       peers[0].serializeAttachment(existingAttachment);
       attachment.generation = nextGeneration;
+      attachment.approved = false;
+      attachment.canApprove = false;
       server.serializeAttachment(attachment);
-      peers[0].send(JSON.stringify({ type: 'peer-ready', generation: nextGeneration, initiator: true }));
-      server.send(JSON.stringify({ type: 'peer-ready', generation: nextGeneration, initiator: false }));
+      peers[0].send(JSON.stringify({
+        type: 'peer-ready', generation: nextGeneration, initiator: true, approver: true,
+      }));
+      server.send(JSON.stringify({
+        type: 'peer-ready', generation: nextGeneration, initiator: false, approver: false,
+      }));
     }
 
     await this.scheduleExpiryAlarm();
@@ -185,6 +200,12 @@ export class SignalingRoom extends DurableObject<AppEnv> {
     attachment.lastSequence = signal.seq;
     attachment.lastSeenAt = Date.now();
     socket.serializeAttachment(attachment);
+
+    if (signal.type === 'approval') {
+      await this.handleApproval(socket, attachment, signal.decision);
+      return;
+    }
+
     const now = Math.floor(Date.now() / 1000);
     for (const peer of this.ctx.getWebSockets()) {
       if (peer === socket) continue;
@@ -204,6 +225,8 @@ export class SignalingRoom extends DurableObject<AppEnv> {
       if (peer === socket) continue;
       const attachment = peer.deserializeAttachment() as SocketAttachment | null;
       if (attachment) {
+        attachment.approved = false;
+        attachment.canApprove = true;
         attachment.generation = nextGeneration;
         attachment.lastSequence = 0;
         peer.serializeAttachment(attachment);
@@ -228,6 +251,39 @@ export class SignalingRoom extends DurableObject<AppEnv> {
 
   private async currentGeneration(): Promise<number> {
     return (await this.ctx.storage.get<number>('generation')) ?? 0;
+  }
+
+  private async handleApproval(
+    socket: WebSocket,
+    attachment: SocketAttachment,
+    decision: 'approve' | 'reject',
+  ): Promise<void> {
+    if (!attachment.canApprove) {
+      this.recordViolation(socket, 'Only the first device may approve this connection');
+      return;
+    }
+
+    const peers = this.ctx.getWebSockets();
+    if (peers.length !== 2) {
+      this.recordViolation(socket, 'There is no second device to approve');
+      return;
+    }
+
+    if (decision === 'reject') {
+      for (const peer of peers) {
+        if (peer !== socket) peer.close(4003, 'Connection rejected by the first device');
+      }
+      socket.send(JSON.stringify({ type: 'workspace-rejected', generation: attachment.generation }));
+      return;
+    }
+
+    for (const peer of peers) {
+      const peerAttachment = peer.deserializeAttachment() as SocketAttachment | null;
+      if (!peerAttachment || peerAttachment.generation !== attachment.generation) continue;
+      peerAttachment.approved = true;
+      peer.serializeAttachment(peerAttachment);
+      peer.send(JSON.stringify({ type: 'workspace-approved', generation: attachment.generation }));
+    }
   }
 
   private async consumeSignalAllowance(socket: WebSocket): Promise<boolean> {
@@ -320,6 +376,11 @@ function isValidSignal(value: unknown): value is Signal {
         || (Number.isInteger(sdpMLineIndex) && Number(sdpMLineIndex) >= 0 && Number(sdpMLineIndex) <= 65_535))
       && (usernameFragment === null || usernameFragment === undefined
         || (typeof usernameFragment === 'string' && usernameFragment.length <= 256));
+  }
+
+  if (value.type === 'approval') {
+    return hasOnlyKeys(value, ['version', 'generation', 'seq', 'type', 'decision'])
+      && (value.decision === 'approve' || value.decision === 'reject');
   }
 
   return false;
@@ -493,6 +554,27 @@ export default {
       return env.SIGNALING_ROOM.get(roomId).fetch(new Request(request, { headers }));
     }
 
+    if (url.pathname === '/p2p/ice') {
+      if (request.method !== 'GET') return new Response('Method not allowed', { status: 405 });
+      const origin = request.headers.get('Origin');
+      const fetchSite = request.headers.get('Sec-Fetch-Site');
+      if ((origin && origin !== url.origin) || (fetchSite && fetchSite !== 'same-origin')) {
+        return new Response('Origin rejected', { status: 403 });
+      }
+      if (!env.ACCESS_CONFIG) return new Response('Access is not configured', { status: 503 });
+      const claims = await verifyAccessRequest(request, env);
+      if (!claims) return new Response('Cloudflare Access authentication required', { status: 401 });
+
+      const iceServers = await createIceServers(env);
+      return Response.json({ iceServers }, {
+        headers: {
+          'Cache-Control': 'no-store',
+          'Cross-Origin-Resource-Policy': 'same-origin',
+          'X-Content-Type-Options': 'nosniff',
+        },
+      });
+    }
+
     const assetResponse = await env.ASSETS.fetch(request);
     const headers = new Headers(assetResponse.headers);
 
@@ -505,7 +587,7 @@ export default {
       headers.set('Cache-Control', 'no-store');
       headers.set(
         'Content-Security-Policy',
-        "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'none'; connect-src 'self' wss://manbesi.lv; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'none'; worker-src 'none'",
+        "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'none'; connect-src 'self' wss://manbesi.lv; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'self'; worker-src 'self'",
       );
     }
 
@@ -516,3 +598,49 @@ export default {
     });
   },
 } satisfies ExportedHandler<AppEnv>;
+
+async function createIceServers(env: AppEnv): Promise<unknown[]> {
+  const fallback = [{ urls: 'stun:stun.cloudflare.com:3478' }];
+  if (!env.TURN_KEY_ID || !env.TURN_KEY_API_TOKEN) return fallback;
+
+  try {
+    const response = await fetch(
+      `https://rtc.live.cloudflare.com/v1/turn/keys/${encodeURIComponent(env.TURN_KEY_ID)}/credentials/generate-ice-servers`,
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${env.TURN_KEY_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ttl: 3600 }),
+      },
+    );
+    if (!response.ok) return fallback;
+    const payload = await response.json() as { iceServers?: unknown };
+    if (!Array.isArray(payload.iceServers)) return fallback;
+    const sanitized = sanitizeIceServers(payload.iceServers);
+    return sanitized.length > 0 ? sanitized : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function sanitizeIceServers(values: unknown[]): unknown[] {
+  const output: unknown[] = [];
+  for (const value of values) {
+    if (!isRecord(value)) continue;
+    const urls = (Array.isArray(value.urls) ? value.urls : [value.urls]).filter(
+      (url): url is string => typeof url === 'string'
+        && url.length <= 2048
+        && /^(stun|turn|turns):/i.test(url)
+        && !/:53(?:\?|$)/.test(url),
+    );
+    if (urls.length === 0) continue;
+    const entry: Record<string, unknown> = { urls };
+    if (typeof value.username === 'string' && value.username.length <= 1024) entry.username = value.username;
+    if (typeof value.credential === 'string' && value.credential.length <= 2048) entry.credential = value.credential;
+    output.push(entry);
+  }
+  return output;
+}

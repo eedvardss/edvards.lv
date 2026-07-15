@@ -22,6 +22,7 @@ html, body { min-height: 100%; background: var(--bg); }
 body { margin: 0; min-width: 320px; }
 
 button, textarea, input { font: inherit; }
+button { color: inherit; }
 
 .workspace {
   width: min(820px, calc(100% - 40px));
@@ -61,6 +62,36 @@ button, textarea, input { font: inherit; }
 
 .presence-dot[data-state="connected"] { background: var(--online); }
 .presence-dot[data-state="error"] { background: var(--danger); }
+
+.pairing {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: -24px 0 28px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--panel);
+}
+
+.pairing[hidden] { display: none; }
+.pairing-label { color: var(--muted); font-size: 10px; }
+.pairing output { display: block; margin-top: 5px; font: 600 17px ui-monospace, "SFMono-Regular", Menlo, monospace; letter-spacing: .08em; }
+.pairing p { margin: 6px 0 0; color: var(--muted); font-size: 11px; }
+.pairing button, .file-action {
+  flex: none;
+  min-height: 34px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 0 12px;
+  background: #f0f0ed;
+  color: #111;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 650;
+}
+.pairing button:disabled, .file-action:disabled { cursor: wait; opacity: .45; }
 
 .text-space, .file-space { min-width: 0; }
 
@@ -102,6 +133,7 @@ button, textarea, input { font: inherit; }
 }
 
 #shared-text:focus { border-color: var(--line-strong); }
+#shared-text:disabled { cursor: not-allowed; opacity: .58; }
 #shared-text::placeholder { color: #565654; }
 
 .file-space {
@@ -177,6 +209,8 @@ button, textarea, input { font: inherit; }
   text-decoration: none;
 }
 
+.file-action { min-height: 30px; padding: 0 10px; }
+
 .transfer { padding: 3px 4px 1px; }
 .transfer-copy { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font-size: 10px; }
 .transfer-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -188,6 +222,7 @@ button, textarea, input { font: inherit; }
   .topbar { margin-bottom: 54px; }
   #shared-text { min-height: 48vh; border-radius: 10px; padding: 16px; font-size: 15px; }
   .file-space { border-radius: 10px; }
+  .pairing { align-items: flex-start; margin-top: -30px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
