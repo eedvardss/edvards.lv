@@ -1,6 +1,6 @@
 # P2P
 
-Question: can `edvards.lv` host a useful private text/file transfer tool without adding an application server or uploading payloads anywhere?
+Question: can `manbesi.lv` host a useful private text/file transfer tool without adding an application server or uploading payloads anywhere?
 
 This app uses a WebRTC data channel and a manual one-time handshake. It lives at `/p2p/`; the site root is intentionally blank.
 

@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "edvards-p2p",
+  "name": "manbesi-p2p",
   "main": "src/worker.ts",
   "compatibility_date": "2026-07-15",
   "compatibility_flags": ["nodejs_compat"],
@@ -8,7 +8,7 @@
   "preview_urls": false,
   "routes": [
     {
-      "pattern": "edvards.lv",
+      "pattern": "manbesi.lv",
       "custom_domain": true
     }
   ],
