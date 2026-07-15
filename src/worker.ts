@@ -364,19 +364,20 @@ async function verifyAccessRequest(request: Request, env: AppEnv): Promise<Acces
   const issuer = `https://${config.teamDomain}.cloudflareaccess.com`;
   const now = Math.floor(Date.now() / 1000);
   const audience = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+  const subject = typeof payload.sub === 'string' ? payload.sub : '';
+  const expiration = typeof payload.exp === 'number' ? payload.exp : Number.NaN;
   if (header.alg !== 'RS256'
-    || header.typ !== 'JWT'
+    || (header.typ !== undefined && header.typ !== 'JWT')
     || typeof header.kid !== 'string'
     || header.kid.length > 256
     || payload.iss !== issuer
     || payload.type !== 'app'
     || !audience.includes(config.audience)
     || payload.email !== config.ownerEmail
-    || typeof payload.sub !== 'string'
-    || payload.sub.length === 0
-    || payload.sub.length > 255
-    || !Number.isSafeInteger(payload.exp)
-    || Number(payload.exp) <= now
+    || subject.length === 0
+    || subject.length > 255
+    || !Number.isSafeInteger(expiration)
+    || expiration <= now
     || (payload.nbf !== undefined && (!Number.isSafeInteger(payload.nbf) || Number(payload.nbf) > now + 30))) {
     return null;
   }
@@ -416,7 +417,7 @@ async function verifyAccessRequest(request: Request, env: AppEnv): Promise<Acces
     return null;
   }
 
-  return { sub: payload.sub, email: config.ownerEmail, exp: Number(payload.exp) };
+  return { sub: subject, email: config.ownerEmail, exp: expiration };
 }
 
 async function accessKeys(issuer: string, forceRefresh = false): Promise<AccessJwk[]> {
