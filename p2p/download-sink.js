@@ -1,17 +1,17 @@
 export const MEMORY_DOWNLOAD_LIMIT = 250 * 1024 * 1024;
 
-export async function createDownloadSink(file) {
-  if (typeof window.showSaveFilePicker === 'function') return createNativeSink(file);
+export async function createDownloadSink(file, runtime = browserRuntime()) {
+  if (typeof runtime.window.showSaveFilePicker === 'function') return createNativeSink(file, runtime);
   try {
-    return await createServiceWorkerSink(file);
+    return await createServiceWorkerSink(file, runtime);
   } catch (error) {
     if (file.size > MEMORY_DOWNLOAD_LIMIT) throw error;
-    return createMemorySink(file);
+    return createMemorySink(file, runtime);
   }
 }
 
-async function createNativeSink(file) {
-  const handle = await window.showSaveFilePicker({ suggestedName: file.name });
+async function createNativeSink(file, runtime) {
+  const handle = await runtime.window.showSaveFilePicker({ suggestedName: file.name });
   const writable = await handle.createWritable();
   return {
     kind: 'disk',
@@ -21,25 +21,34 @@ async function createNativeSink(file) {
   };
 }
 
-async function createServiceWorkerSink(file) {
-  if (!('serviceWorker' in navigator)) throw new Error('Streaming downloads are not supported by this browser.');
-  const registrations = await navigator.serviceWorker.getRegistrations();
+async function createServiceWorkerSink(file, runtime) {
+  if (!('serviceWorker' in runtime.navigator)) throw new Error('Streaming downloads are not supported by this browser.');
+  const registrations = await runtime.navigator.serviceWorker.getRegistrations();
   await Promise.all(registrations
     .filter((item) => item.scope.endsWith('/p2p/download/'))
     .map((item) => item.unregister()));
-  const registration = await navigator.serviceWorker.register('./download-worker.js', { scope: '/p2p/' });
-  const worker = await activeWorker(registration);
-  await waitForControl(worker);
-  const channel = new MessageChannel();
+  const registration = await runtime.navigator.serviceWorker.register('./download-worker.js', {
+    scope: '/p2p/',
+    updateViaCache: 'none',
+  });
+  await registration.update();
+  const worker = await activeWorker(registration, runtime);
+  const channel = new runtime.MessageChannel();
   const pending = new Map();
   let sequence = 0;
   let failed = null;
+  let downloadStarted = null;
 
   channel.port1.onmessage = ({ data }) => {
     if (data?.type === 'error') {
       failed = new Error(data.message || 'The browser download failed.');
       for (const waiter of pending.values()) waiter.reject(failed);
       pending.clear();
+      return;
+    }
+    if (data?.type === 'download-started') {
+      downloadStarted?.resolve();
+      downloadStarted = null;
       return;
     }
     const waiter = pending.get(data?.sequence);
@@ -60,15 +69,38 @@ async function createServiceWorkerSink(file) {
   }, [channel.port2]);
   await ready;
 
-  const frame = document.createElement('iframe');
+  const frame = runtime.document.createElement('iframe');
   frame.src = `/p2p/download/${encodeURIComponent(file.id)}`;
   frame.hidden = true;
   frame.title = '';
-  document.body.append(frame);
+  runtime.document.body.append(frame);
+  try {
+    await waitForDownloadStart();
+  } catch (error) {
+    channel.port1.postMessage({ type: 'abort', message: 'Download did not start.' });
+    channel.port1.close();
+    frame.remove();
+    throw error;
+  }
 
   function waitFor(nextSequence) {
     if (failed) return Promise.reject(failed);
     return new Promise((resolve, reject) => pending.set(nextSequence, { resolve, reject }));
+  }
+
+  function waitForDownloadStart() {
+    return new Promise((resolve, reject) => {
+      const timeout = runtime.setTimeout(() => {
+        downloadStarted = null;
+        reject(new Error('The browser download did not start.'));
+      }, runtime.downloadStartTimeoutMs ?? 5_000);
+      downloadStarted = {
+        resolve() {
+          runtime.clearTimeout(timeout);
+          resolve();
+        },
+      };
+    });
   }
 
   return {
@@ -90,53 +122,57 @@ async function createServiceWorkerSink(file) {
     async abort(reason) {
       channel.port1.postMessage({ type: 'abort', message: String(reason || 'Transfer cancelled') });
       channel.port1.close();
+      frame.remove();
     },
   };
 }
 
-function createMemorySink(file) {
+function createMemorySink(file, runtime) {
   const chunks = [];
   return {
     kind: 'memory',
     async write(chunk) { chunks.push(chunk); },
     async close() {
-      return { url: URL.createObjectURL(new Blob(chunks, { type: file.mime || 'application/octet-stream' })) };
+      return {
+        url: runtime.URL.createObjectURL(
+          new runtime.Blob(chunks, { type: file.mime || 'application/octet-stream' }),
+        ),
+      };
     },
     async abort() { chunks.length = 0; },
   };
 }
 
-function activeWorker(registration) {
-  const worker = registration.active || registration.waiting || registration.installing;
+function activeWorker(registration, runtime) {
+  const worker = registration.installing || registration.waiting || registration.active;
   if (!worker) return Promise.reject(new Error('The download service could not start.'));
   if (worker.state === 'activated') return Promise.resolve(worker);
   return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error('The download service took too long to start.')), 10_000);
+    const timeout = runtime.setTimeout(
+      () => reject(new Error('The download service took too long to start.')),
+      runtime.activationTimeoutMs ?? 10_000,
+    );
     worker.addEventListener('statechange', () => {
       if (worker.state === 'activated') {
-        clearTimeout(timeout);
+        runtime.clearTimeout(timeout);
         resolve(worker);
       } else if (worker.state === 'redundant') {
-        clearTimeout(timeout);
+        runtime.clearTimeout(timeout);
         reject(new Error('The download service failed to start.'));
       }
     });
   });
 }
 
-function waitForControl(worker) {
-  if (navigator.serviceWorker.controller?.scriptURL === worker.scriptURL) return Promise.resolve();
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      navigator.serviceWorker.removeEventListener('controllerchange', onChange);
-      reject(new Error('The download service could not control this page. Reload and try once more.'));
-    }, 10_000);
-    const onChange = () => {
-      if (navigator.serviceWorker.controller?.scriptURL !== worker.scriptURL) return;
-      clearTimeout(timeout);
-      navigator.serviceWorker.removeEventListener('controllerchange', onChange);
-      resolve();
-    };
-    navigator.serviceWorker.addEventListener('controllerchange', onChange);
-  });
+function browserRuntime() {
+  return {
+    Blob,
+    MessageChannel,
+    URL,
+    clearTimeout: (handle) => clearTimeout(handle),
+    document,
+    navigator,
+    setTimeout: (callback, delay) => setTimeout(callback, delay),
+    window,
+  };
 }

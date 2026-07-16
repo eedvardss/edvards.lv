@@ -45,6 +45,7 @@ self.addEventListener('fetch', (event) => {
   const stream = new ReadableStream({
     start(controller) {
       transfer.controller = controller;
+      transfer.port.postMessage({ type: 'download-started' });
       flush(transfer);
     },
     pull() { flush(transfer); },
@@ -79,10 +80,15 @@ function receive(transfer, message) {
 
 function flush(transfer) {
   if (!transfer.controller) return;
-  while (transfer.queue.length > 0 && (transfer.controller.desiredSize ?? 1) > 0) {
+  while (transfer.queue.length > 0) {
     const item = transfer.queue.shift();
-    transfer.controller.enqueue(new Uint8Array(item.chunk));
-    transfer.port.postMessage({ type: 'ack', sequence: item.sequence });
+    try {
+      transfer.controller.enqueue(new Uint8Array(item.chunk));
+      transfer.port.postMessage({ type: 'ack', sequence: item.sequence });
+    } catch {
+      abort(transfer, 'The browser stopped the download.');
+      return;
+    }
   }
   if (transfer.ended && transfer.queue.length === 0) {
     transfer.controller.close();

@@ -72,7 +72,7 @@ function setPresence(label, state = 'waiting') {
 function setWorkspaceEnabled(enabled) {
   elements.text.disabled = !enabled;
   elements.fileInput.disabled = !enabled;
-  elements.dropCopy.textContent = enabled ? 'Drop files or folders here' : 'Waiting for an approved device';
+  elements.dropCopy.textContent = enabled ? 'Click or drop files or folders here' : 'Waiting for an approved device';
   if (!enabled) elements.syncLabel.textContent = textDirty ? 'Ready locally' : 'Waiting';
 }
 
@@ -798,6 +798,16 @@ elements.approveDevice.addEventListener('click', () => {
 });
 elements.text.addEventListener('input', queueTextSync);
 elements.fileInput.addEventListener('change', () => sendFiles([...elements.fileInput.files]));
+elements.fileSpace.addEventListener('click', (event) => {
+  if (elements.fileInput.disabled || transferBusy || preparationBusy) return;
+  if (event.target.closest('button, a')) return;
+  elements.fileInput.click();
+});
+elements.fileSpace.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  event.preventDefault();
+  if (!elements.fileInput.disabled && !transferBusy && !preparationBusy) elements.fileInput.click();
+});
 elements.fileSpace.addEventListener('dragover', (event) => {
   event.preventDefault();
   if (!elements.fileInput.disabled) elements.fileSpace.classList.add('dragging');

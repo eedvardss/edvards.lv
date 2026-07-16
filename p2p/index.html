@@ -13,7 +13,6 @@
   <body>
     <main class="workspace">
       <header class="topbar">
-        <a class="mark" href="/" aria-label="Home">p2p</a>
         <div class="presence" aria-live="polite">
           <span class="presence-dot" id="presence-dot"></span>
           <span id="presence-label">Connecting</span>
@@ -29,13 +28,11 @@
         <button id="approve-device" type="button" hidden disabled>Approve device</button>
       </section>
 
-      <section class="text-space" aria-labelledby="text-title">
-        <div class="section-line">
-          <h1 id="text-title">Shared text</h1>
-          <span id="sync-label">Waiting</span>
-        </div>
+      <section class="text-space">
+        <div class="text-status" id="sync-label">Waiting</div>
         <textarea
           id="shared-text" disabled
+          aria-label="Shared text"
           maxlength="65536"
           spellcheck="true"
           autocomplete="off"
@@ -43,15 +40,12 @@
         ></textarea>
       </section>
 
-      <section class="file-space" id="file-space" aria-labelledby="files-title">
+      <section class="file-space" id="file-space" aria-labelledby="files-title" role="button" tabindex="0">
         <div class="section-line">
           <h2 id="files-title">Files</h2>
-          <label class="file-button" for="file-input">
-            <input id="file-input" type="file" multiple disabled />
-            Add files
-          </label>
+          <input id="file-input" type="file" multiple disabled />
         </div>
-        <div class="drop-copy" id="drop-copy">Drop files or folders here</div>
+        <div class="drop-copy" id="drop-copy">Click or drop files or folders here</div>
         <ul class="file-list" id="file-list"></ul>
         <div class="transfer" id="transfer" hidden>
           <div class="transfer-copy"><span id="transfer-label"></span><span id="transfer-value"></span></div>

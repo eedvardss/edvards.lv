@@ -33,16 +33,9 @@ button { color: inherit; }
 .topbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   min-height: 42px;
   margin-bottom: clamp(42px, 7vw, 64px);
-}
-
-.mark {
-  color: var(--text);
-  font: 600 13px ui-monospace, "SFMono-Regular", Menlo, monospace;
-  letter-spacing: -0.04em;
-  text-decoration: none;
 }
 
 .presence {
@@ -94,6 +87,16 @@ button { color: inherit; }
 .pairing button:disabled, .file-action:disabled { cursor: wait; opacity: .45; }
 
 .text-space, .file-space { min-width: 0; }
+.text-space { position: relative; }
+.text-status {
+  position: absolute;
+  z-index: 1;
+  top: 14px;
+  right: 16px;
+  color: var(--muted);
+  font-size: 10px;
+  pointer-events: none;
+}
 
 .section-line {
   display: flex;
@@ -122,7 +125,7 @@ button { color: inherit; }
   resize: vertical;
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 20px;
+  padding: 42px 20px 20px;
   color: var(--text);
   background: var(--panel);
   font-size: 16px;
@@ -142,27 +145,14 @@ button { color: inherit; }
   border-radius: 12px;
   padding: 16px;
   background: var(--panel);
+  cursor: pointer;
   transition: border-color 120ms ease, background-color 120ms ease;
 }
 
 .file-space.dragging { border-color: var(--line-strong); background: #151515; }
-
-.file-button {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 0 11px;
-  color: var(--text);
-  background: #181818;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.file-button:has(input:disabled) { opacity: .38; cursor: not-allowed; }
-.file-button input { display: none; }
+.file-space:focus-visible { outline: 1px solid var(--line-strong); outline-offset: 3px; }
+.file-space:has(input:disabled) { cursor: not-allowed; }
+#file-input { display: none; }
 
 .drop-copy {
   padding: 20px 4px 12px;
