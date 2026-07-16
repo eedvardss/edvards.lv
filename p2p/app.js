@@ -63,6 +63,7 @@ let textDirty = false;
 let incomingTextTimes = [];
 let retainedFileBytes = 0;
 const objectUrls = new Set();
+const retainedDownloads = [];
 
 function setPresence(label, state = 'waiting') {
   elements.presenceLabel.textContent = label;
@@ -569,19 +570,23 @@ async function failIncoming(file, error) {
 
 function finishIncomingRow(file, url) {
   const meta = file.item?.querySelector('.file-meta');
-  if (meta) meta.textContent = `Received · ${formatBytes(file.size)}`;
-  if (!url || !file.item) return;
-  const link = document.createElement('a');
-  link.className = 'file-download';
-  link.href = url;
-  link.download = file.name;
-  link.textContent = 'Save';
-  file.item.append(link);
-  file.item.dataset.objectUrl = url;
-  file.item.dataset.fileSize = String(file.size);
-  objectUrls.add(url);
-  retainedFileBytes += file.size;
-  link.click();
+  if (meta) meta.textContent = `Downloaded · ${formatBytes(file.size)}`;
+  if (url) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = file.name;
+    link.hidden = true;
+    file.item?.append(link);
+    objectUrls.add(url);
+    retainedDownloads.push({ size: file.size, url });
+    retainedFileBytes += file.size;
+    link.click();
+    setTimeout(() => releaseRetainedDownload(url), 60_000);
+  }
+  if (file.item) {
+    file.item.classList.add('complete');
+    setTimeout(() => file.item?.remove(), 900);
+  }
 }
 
 async function sendFiles(files) {
@@ -626,7 +631,6 @@ async function sendFile(file) {
   await waitForOutgoing((value) => value.acked === file.size, FILE_ACK_TIMEOUT_MS, 'The other device did not finish writing the file.');
   sendControl({ type: 'file-end', id: state.id });
   await waitForOutgoing((value) => value.complete, FILE_ACK_TIMEOUT_MS, 'The other device did not finish the download.');
-  addFile(file.name, file.size, 'Sent');
   outgoingFile = null;
 }
 
@@ -700,45 +704,27 @@ function showProgress(label, complete, total) {
   elements.transferBar.style.width = `${percent}%`;
 }
 
-function addFile(name, size, direction) {
-  const item = document.createElement('li');
-  item.className = 'file-item';
-  const copy = document.createElement('div');
-  const fileName = document.createElement('div');
-  fileName.className = 'file-name';
-  fileName.textContent = name;
-  const meta = document.createElement('div');
-  meta.className = 'file-meta';
-  meta.textContent = `${direction} · ${formatBytes(size)}`;
-  copy.append(fileName, meta);
-  item.append(copy);
-  elements.fileList.prepend(item);
-  trimFileList();
-}
-
 function trimFileList() {
   while (elements.fileList.children.length > MAX_FILE_ITEMS) {
     const oldest = elements.fileList.lastElementChild;
-    releaseFileItem(oldest);
     oldest?.remove();
   }
 }
 
 function makeRoomForIncomingFile(size) {
-  const receivedItems = [...elements.fileList.querySelectorAll('[data-object-url]')].reverse();
-  for (const item of receivedItems) {
-    if (retainedFileBytes + size <= MAX_RETAINED_FILE_BYTES) break;
-    releaseFileItem(item);
-    item.remove();
+  while (retainedFileBytes + size > MAX_RETAINED_FILE_BYTES && retainedDownloads.length > 0) {
+    releaseRetainedDownload(retainedDownloads[0].url);
   }
   if (retainedFileBytes + size > MAX_RETAINED_FILE_BYTES) throw new Error('Not enough browser memory for that file.');
 }
 
-function releaseFileItem(item) {
-  if (!item?.dataset.objectUrl) return;
-  URL.revokeObjectURL(item.dataset.objectUrl);
-  objectUrls.delete(item.dataset.objectUrl);
-  retainedFileBytes = Math.max(0, retainedFileBytes - Number(item.dataset.fileSize || 0));
+function releaseRetainedDownload(url) {
+  const index = retainedDownloads.findIndex((download) => download.url === url);
+  if (index === -1) return;
+  const [download] = retainedDownloads.splice(index, 1);
+  URL.revokeObjectURL(download.url);
+  objectUrls.delete(download.url);
+  retainedFileBytes = Math.max(0, retainedFileBytes - download.size);
 }
 
 function protocolViolation(reason) {
@@ -840,6 +826,8 @@ window.addEventListener('beforeunload', () => {
   closePeer();
   for (const url of objectUrls) URL.revokeObjectURL(url);
   objectUrls.clear();
+  retainedDownloads.length = 0;
+  retainedFileBytes = 0;
 });
 
 resetPairing();

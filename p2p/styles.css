@@ -180,7 +180,9 @@ button { color: inherit; }
   min-height: 50px;
   border-bottom: 1px solid var(--line);
   padding: 8px 4px;
+  transition: opacity 180ms ease;
 }
+.file-item.complete { opacity: 0; }
 
 .file-name {
   overflow: hidden;
