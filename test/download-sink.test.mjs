@@ -1,7 +1,28 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { createDownloadSink } from '../p2p/download-sink.js';
+import { createDownloadSink, isWebKit } from '../p2p/download-sink.js';
+
+test('uses the reliable memory route for ordinary Safari downloads', async () => {
+  let registrations = 0;
+  const runtime = fakeRuntime({
+    userAgent: 'Mozilla/5.0 (Macintosh) AppleWebKit/605.1.15 Version/26.0 Safari/605.1.15',
+    onRegister() { registrations += 1; },
+  });
+
+  const sink = await createDownloadSink(
+    { id: crypto.randomUUID(), name: 'secret.env', size: 5, mime: 'text/plain' },
+    runtime,
+  );
+
+  assert.equal(sink.kind, 'memory');
+  assert.equal(registrations, 0);
+});
+
+test('recognizes Safari/WebKit without classifying Chromium as WebKit download mode', () => {
+  assert.equal(isWebKit('Mozilla/5.0 AppleWebKit/605.1.15 Version/26.0 Safari/605.1.15'), true);
+  assert.equal(isWebKit('Mozilla/5.0 AppleWebKit/537.36 Chrome/140.0.0.0 Safari/537.36'), false);
+});
 
 test('falls back to memory when a service-worker download never starts consuming bytes', async () => {
   const runtime = fakeRuntime({
@@ -28,7 +49,10 @@ function fakeRuntime(workerBehavior) {
   const serviceWorker = {
     controller: worker,
     getRegistrations: async () => [],
-    register: async () => ({ active: worker, update: async () => {} }),
+    register: async () => {
+      workerBehavior.onRegister?.();
+      return { active: worker, update: async () => {} };
+    },
     addEventListener() {},
     removeEventListener() {},
   };
@@ -44,7 +68,7 @@ function fakeRuntime(workerBehavior) {
       body: { append() {} },
       createElement: () => ({ hidden: false, remove() {} }),
     },
-    navigator: { serviceWorker },
+    navigator: { serviceWorker, userAgent: workerBehavior.userAgent || 'TestBrowser/1.0' },
     setTimeout,
     window: {},
   };

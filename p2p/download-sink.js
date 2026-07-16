@@ -2,6 +2,9 @@ export const MEMORY_DOWNLOAD_LIMIT = 250 * 1024 * 1024;
 
 export async function createDownloadSink(file, runtime = browserRuntime()) {
   if (typeof runtime.window.showSaveFilePicker === 'function') return createNativeSink(file, runtime);
+  if (file.size <= MEMORY_DOWNLOAD_LIMIT && isWebKit(runtime.navigator.userAgent)) {
+    return createMemorySink(file, runtime);
+  }
   try {
     return await createServiceWorkerSink(file, runtime);
   } catch (error) {
@@ -162,6 +165,12 @@ function activeWorker(registration, runtime) {
       }
     });
   });
+}
+
+export function isWebKit(userAgent) {
+  return typeof userAgent === 'string'
+    && /AppleWebKit/i.test(userAgent)
+    && !/(Chrome|Chromium|Edg)\/|Android/i.test(userAgent);
 }
 
 function browserRuntime() {

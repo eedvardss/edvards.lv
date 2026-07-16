@@ -83,16 +83,16 @@ function flush(transfer) {
   while (transfer.queue.length > 0) {
     const item = transfer.queue.shift();
     try {
-      transfer.controller.enqueue(new Uint8Array(item.chunk));
       transfer.port.postMessage({ type: 'ack', sequence: item.sequence });
+      transfer.controller.enqueue(new Uint8Array(item.chunk));
     } catch {
       abort(transfer, 'The browser stopped the download.');
       return;
     }
   }
   if (transfer.ended && transfer.queue.length === 0) {
-    transfer.controller.close();
     transfer.port.postMessage({ type: 'ack', sequence: transfer.endSequence });
+    transfer.controller.close();
     transfer.port.close();
     downloads.delete(transfer.id);
   }
