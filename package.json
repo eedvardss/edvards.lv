@@ -6,11 +6,12 @@
     "build": "node scripts/build.mjs",
     "test": "node --test test/*.test.mjs",
     "check": "npm test && npm run build && tsc --noEmit && wrangler deploy --dry-run",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "status": "node scripts/set-status.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
     "typescript": "latest",
-    "wrangler": "latest"
+    "wrangler": "^4.123.0"
   }
 }

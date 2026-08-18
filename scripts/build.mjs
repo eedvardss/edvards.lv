@@ -9,6 +9,7 @@ await mkdir(p2pOutput, { recursive: true });
 await Promise.all([
   copyFile(new URL('../index.html', import.meta.url), new URL('./index.html', output)),
   copyFile(new URL('../root.css', import.meta.url), new URL('./root.css', output)),
+  copyFile(new URL('../root.js', import.meta.url), new URL('./root.js', output)),
   copyFile(new URL('../p2p/index.html', import.meta.url), new URL('./index.html', p2pOutput)),
   copyFile(new URL('../p2p/app.js', import.meta.url), new URL('./app.js', p2pOutput)),
   copyFile(new URL('../p2p/download-sink.js', import.meta.url), new URL('./download-sink.js', p2pOutput)),

@@ -22,6 +22,10 @@
       {
         "name": "SIGNALING_ROOM",
         "class_name": "SignalingRoom"
+      },
+      {
+        "name": "STATUS_STORE",
+        "class_name": "StatusStore"
       }
     ]
   },
@@ -29,6 +33,10 @@
     {
       "tag": "v1",
       "new_sqlite_classes": ["SignalingRoom"]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["StatusStore"]
     }
   ],
   "observability": {

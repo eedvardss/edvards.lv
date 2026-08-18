@@ -6,6 +6,9 @@ const MAX_SIGNALS_PER_WINDOW = 120;
 const MAX_PROTOCOL_VIOLATIONS = 3;
 const MAX_ADMISSIONS_PER_MINUTE = 20;
 const SOCKET_STALE_AFTER_MS = 60_000;
+const MAX_STATUS_BODY_SIZE = 2 * 1024;
+const MAX_STATUS_LENGTH = 64;
+const DEFAULT_STATUS = 'darbs';
 
 const SECURITY_HEADERS = {
   'Cross-Origin-Opener-Policy': 'same-origin',
@@ -19,8 +22,14 @@ const SECURITY_HEADERS = {
 
 type AppEnv = Env & {
   ACCESS_CONFIG?: string;
+  STATUS_UPDATE_TOKEN?: string;
   TURN_KEY_API_TOKEN?: string;
   TURN_KEY_ID?: string;
+};
+
+type StatusRecord = {
+  text: string;
+  updatedAt: string | null;
 };
 
 type AccessConfig = {
@@ -344,6 +353,24 @@ export class SignalingRoom extends DurableObject<AppEnv> {
   }
 }
 
+export class StatusStore extends DurableObject<AppEnv> {
+  async getStatus(): Promise<StatusRecord> {
+    return (await this.ctx.storage.get<StatusRecord>('status')) ?? {
+      text: DEFAULT_STATUS,
+      updatedAt: null,
+    };
+  }
+
+  async setStatus(text: string): Promise<StatusRecord> {
+    const status = {
+      text,
+      updatedAt: new Date().toISOString(),
+    } satisfies StatusRecord;
+    await this.ctx.storage.put('status', status);
+    return status;
+  }
+}
+
 function isValidSignal(value: unknown): value is Signal {
   if (!isRecord(value)
     || value.version !== 1
@@ -532,6 +559,76 @@ export default {
   async fetch(request, env): Promise<Response> {
     const url = new URL(request.url);
 
+    if (url.pathname === '/api/status') {
+      if (request.method !== 'GET') {
+        return statusJson({ error: 'Method not allowed' }, 405, { Allow: 'GET' });
+      }
+
+      const status = await env.STATUS_STORE.getByName('site-status').getStatus();
+      return statusJson(status);
+    }
+
+    if (url.pathname === '/api/update') {
+      if (request.method !== 'POST') {
+        return statusJson({ error: 'Method not allowed' }, 405, { Allow: 'POST' });
+      }
+      if (!env.STATUS_UPDATE_TOKEN) {
+        return statusJson({ error: 'Status updates are not configured' }, 503);
+      }
+
+      const fetchSite = request.headers.get('Sec-Fetch-Site');
+      if (fetchSite && fetchSite !== 'same-origin' && fetchSite !== 'none') {
+        return statusJson({ error: 'Cross-site updates are not allowed' }, 403);
+      }
+
+      const providedToken = readBearerToken(request);
+      if (!providedToken || !(await timingSafeTokenMatches(providedToken, env.STATUS_UPDATE_TOKEN))) {
+        return statusJson(
+          { error: 'Unauthorized' },
+          401,
+          { 'WWW-Authenticate': 'Bearer realm="manbesi-status"' },
+        );
+      }
+
+      const contentType = request.headers.get('Content-Type')?.split(';', 1)[0].trim().toLowerCase();
+      if (contentType !== 'application/json') {
+        return statusJson({ error: 'Content-Type must be application/json' }, 415);
+      }
+
+      const contentLength = Number(request.headers.get('Content-Length'));
+      if (Number.isFinite(contentLength) && contentLength > MAX_STATUS_BODY_SIZE) {
+        return statusJson({ error: 'Request body is too large' }, 413);
+      }
+
+      let rawBody: string;
+      try {
+        rawBody = await readBoundedBody(request, MAX_STATUS_BODY_SIZE);
+      } catch (error) {
+        return error instanceof RangeError
+          ? statusJson({ error: 'Request body is too large' }, 413)
+          : statusJson({ error: 'Request body could not be read as UTF-8 text' }, 400);
+      }
+
+      let payload: unknown;
+      try {
+        payload = JSON.parse(rawBody);
+      } catch {
+        return statusJson({ error: 'Request body must contain valid JSON' }, 400);
+      }
+      if (!isRecord(payload) || !hasOnlyKeys(payload, ['text']) || typeof payload.text !== 'string') {
+        return statusJson({ error: 'Request body must be an object containing only a text string' }, 400);
+      }
+
+      const text = payload.text.trim().normalize('NFC');
+      if (!isValidStatusText(text)) {
+        return statusJson({ error: 'Text must be 1 to 64 characters with no line breaks or control characters' }, 422);
+      }
+
+      const status = await env.STATUS_STORE.getByName('site-status').setStatus(text);
+      console.log(JSON.stringify({ event: 'status_updated', textLength: Array.from(text).length, updatedAt: status.updatedAt }));
+      return statusJson(status);
+    }
+
     if (url.pathname === '/p2p') {
       return Response.redirect(`${url.origin}/p2p/`, 308);
     }
@@ -598,6 +695,74 @@ export default {
     });
   },
 } satisfies ExportedHandler<AppEnv>;
+
+function statusJson(
+  value: unknown,
+  status = 200,
+  extraHeaders: Record<string, string> = {},
+): Response {
+  return Response.json(value, {
+    status,
+    headers: {
+      ...SECURITY_HEADERS,
+      'Cache-Control': 'no-store',
+      'Cross-Origin-Resource-Policy': 'same-origin',
+      ...extraHeaders,
+    },
+  });
+}
+
+function readBearerToken(request: Request): string | null {
+  const authorization = request.headers.get('Authorization');
+  if (!authorization
+    || authorization.length > 1024
+    || authorization.slice(0, 'Bearer '.length).toLowerCase() !== 'bearer ') return null;
+  const token = authorization.slice('Bearer '.length);
+  return token.length > 0 ? token : null;
+}
+
+async function timingSafeTokenMatches(provided: string, expected: string): Promise<boolean> {
+  const encoder = new TextEncoder();
+  const [providedHash, expectedHash] = await Promise.all([
+    crypto.subtle.digest('SHA-256', encoder.encode(provided)),
+    crypto.subtle.digest('SHA-256', encoder.encode(expected)),
+  ]);
+  return crypto.subtle.timingSafeEqual(providedHash, expectedHash);
+}
+
+async function readBoundedBody(request: Request, maximumBytes: number): Promise<string> {
+  if (!request.body) return '';
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    totalBytes += value.byteLength;
+    if (totalBytes > maximumBytes) {
+      await reader.cancel();
+      throw new RangeError('Body too large');
+    }
+    chunks.push(value);
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(bytes);
+}
+
+function isValidStatusText(value: string): boolean {
+  const length = Array.from(value).length;
+  return length >= 1
+    && length <= MAX_STATUS_LENGTH
+    && !/[\u0000-\u001f\u007f]/u.test(value);
+}
 
 async function createIceServers(env: AppEnv): Promise<unknown[]> {
   const fallback = [{ urls: 'stun:stun.cloudflare.com:3478' }];

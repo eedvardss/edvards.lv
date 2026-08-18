@@ -1,13 +1,20 @@
 <!doctype html>
-<html lang="en">
+<html lang="lv">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#090a09" />
     <meta name="referrer" content="no-referrer" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self'; img-src 'none'; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'" />
-    <title>manbesi.lv</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'none'; font-src 'none'; connect-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'" />
+    <meta name="description" content="Kas Edvardam pašlaik besī." />
+    <title>man besī darbs</title>
     <link rel="stylesheet" href="./root.css" />
   </head>
-  <body></body>
+  <body>
+    <main class="status" aria-label="Kas man pašlaik besī">
+      <p class="status__prefix">man besī</p>
+      <p id="status-word" class="status__word" aria-live="polite" aria-atomic="true">darbs</p>
+    </main>
+    <script src="./root.js" defer></script>
+  </body>
 </html>
