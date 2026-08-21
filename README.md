@@ -22,7 +22,7 @@ curl -X POST https://manbesi.lv/api/update \
   --data '{"text":"pirmdienas"}'
 ```
 
-On Edvards' Mac, the deployment token is stored in Keychain under the service
+On the deployment Mac, the token is stored in Keychain under the service
 `manbesi-status-api`. The repository helper reads it without printing it:
 
 ```bash

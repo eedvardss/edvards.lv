@@ -15,7 +15,6 @@ async function showStatus(text) {
 
   currentText = text;
   statusWord.textContent = text;
-  document.title = `man besī ${text}`;
   statusWord.classList.remove('is-changing');
 }
 
