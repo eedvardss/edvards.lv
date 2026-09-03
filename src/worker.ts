@@ -562,10 +562,6 @@ export default {
   async fetch(request, env): Promise<Response> {
     const url = new URL(request.url);
 
-    if (url.pathname === BEER_MAP_PREFIX || url.pathname.startsWith(`${BEER_MAP_PREFIX}/`)) {
-      return proxyBeerMap(request, env, url);
-    }
-
     if (url.pathname === '/api/status') {
       if (request.method !== 'GET') {
         return statusJson({ error: 'Method not allowed' }, 405, { Allow: 'GET' });
@@ -679,31 +675,37 @@ export default {
       });
     }
 
-    const assetResponse = await env.ASSETS.fetch(request);
-    const headers = new Headers(assetResponse.headers);
+    if (url.pathname.startsWith('/p2p/')) {
+      const assetResponse = await env.ASSETS.fetch(request);
+      const headers = new Headers(assetResponse.headers);
 
-    for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
-      headers.set(name, value);
-    }
+      for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+        headers.set(name, value);
+      }
 
-    if (url.pathname.startsWith('/p2p/')) headers.set('Cache-Control', 'no-store');
-    if (headers.get('Content-Type')?.includes('text/html')) {
       headers.set('Cache-Control', 'no-store');
-      headers.set(
-        'Content-Security-Policy',
-        "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'none'; connect-src 'self' wss://manbesi.lv; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'self'; worker-src 'self'",
-      );
+      if (headers.get('Content-Type')?.includes('text/html')) {
+        headers.set(
+          'Content-Security-Policy',
+          "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'none'; connect-src 'self' wss://manbesi.lv; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'self'; worker-src 'self'",
+        );
+      }
+
+      return new Response(assetResponse.body, {
+        status: assetResponse.status,
+        statusText: assetResponse.statusText,
+        headers,
+      });
     }
 
-    return new Response(assetResponse.body, {
-      status: assetResponse.status,
-      statusText: assetResponse.statusText,
-      headers,
-    });
+    const mountPrefix = url.pathname === BEER_MAP_PREFIX || url.pathname.startsWith(`${BEER_MAP_PREFIX}/`)
+      ? BEER_MAP_PREFIX
+      : '';
+    return proxyBeerMap(request, env, url, mountPrefix);
   },
 } satisfies ExportedHandler<AppEnv>;
 
-async function proxyBeerMap(request: Request, env: AppEnv, requestUrl: URL): Promise<Response> {
+async function proxyBeerMap(request: Request, env: AppEnv, requestUrl: URL, mountPrefix: string): Promise<Response> {
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     return new Response('Method not allowed', { status: 405, headers: { Allow: 'GET, HEAD' } });
   }
@@ -712,7 +714,7 @@ async function proxyBeerMap(request: Request, env: AppEnv, requestUrl: URL): Pro
   }
 
   const upstreamUrl = new URL(BEER_MAP_ORIGIN);
-  upstreamUrl.pathname = requestUrl.pathname.slice(BEER_MAP_PREFIX.length) || '/';
+  upstreamUrl.pathname = mountPrefix ? requestUrl.pathname.slice(mountPrefix.length) || '/' : requestUrl.pathname;
   upstreamUrl.search = requestUrl.search;
 
   const upstreamHeaders = new Headers(request.headers);
@@ -735,7 +737,7 @@ async function proxyBeerMap(request: Request, env: AppEnv, requestUrl: URL): Pro
   if (location) {
     const target = new URL(location, upstreamUrl);
     if (target.origin === BEER_MAP_ORIGIN) {
-      headers.set('Location', `${requestUrl.origin}${BEER_MAP_PREFIX}${target.pathname}${target.search}${target.hash}`);
+      headers.set('Location', `${requestUrl.origin}${mountPrefix}${target.pathname}${target.search}${target.hash}`);
     }
   }
 
@@ -747,9 +749,12 @@ async function proxyBeerMap(request: Request, env: AppEnv, requestUrl: URL): Pro
     return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
   }
 
-  const html = (await upstream.text())
-    .replaceAll('="/_next/', `="${BEER_MAP_PREFIX}/_next/`)
-    .replaceAll('"pathname":"/"', `"pathname":"${BEER_MAP_PREFIX}/"`);
+  const upstreamHtml = await upstream.text();
+  const html = mountPrefix
+    ? upstreamHtml
+      .replaceAll('="/_next/', `="${mountPrefix}/_next/`)
+      .replaceAll('"pathname":"/"', `"pathname":"${mountPrefix}/"`)
+    : upstreamHtml;
   headers.set('Cache-Control', 'no-store');
   headers.set(
     'Content-Security-Policy',
