@@ -9,6 +9,8 @@ const SOCKET_STALE_AFTER_MS = 60_000;
 const MAX_STATUS_BODY_SIZE = 2 * 1024;
 const MAX_STATUS_LENGTH = 64;
 const DEFAULT_STATUS = 'darbs';
+const BEER_MAP_PREFIX = '/alus';
+const BEER_MAP_ORIGIN = 'https://rigas-alus-karte.micux21.chatgpt.site';
 
 const SECURITY_HEADERS = {
   'Cross-Origin-Opener-Policy': 'same-origin',
@@ -22,6 +24,7 @@ const SECURITY_HEADERS = {
 
 type AppEnv = Env & {
   ACCESS_CONFIG?: string;
+  BEER_MAP_ORIGIN_TOKEN?: string;
   STATUS_UPDATE_TOKEN?: string;
   TURN_KEY_API_TOKEN?: string;
   TURN_KEY_ID?: string;
@@ -559,6 +562,10 @@ export default {
   async fetch(request, env): Promise<Response> {
     const url = new URL(request.url);
 
+    if (url.pathname === BEER_MAP_PREFIX || url.pathname.startsWith(`${BEER_MAP_PREFIX}/`)) {
+      return proxyBeerMap(request, env, url);
+    }
+
     if (url.pathname === '/api/status') {
       if (request.method !== 'GET') {
         return statusJson({ error: 'Method not allowed' }, 405, { Allow: 'GET' });
@@ -695,6 +702,66 @@ export default {
     });
   },
 } satisfies ExportedHandler<AppEnv>;
+
+async function proxyBeerMap(request: Request, env: AppEnv, requestUrl: URL): Promise<Response> {
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    return new Response('Method not allowed', { status: 405, headers: { Allow: 'GET, HEAD' } });
+  }
+  if (!env.BEER_MAP_ORIGIN_TOKEN) {
+    return new Response('Beer map origin is not configured', { status: 503 });
+  }
+
+  const upstreamUrl = new URL(BEER_MAP_ORIGIN);
+  upstreamUrl.pathname = requestUrl.pathname.slice(BEER_MAP_PREFIX.length) || '/';
+  upstreamUrl.search = requestUrl.search;
+
+  const upstreamHeaders = new Headers(request.headers);
+  upstreamHeaders.delete('Authorization');
+  upstreamHeaders.delete('Cookie');
+  upstreamHeaders.delete('Host');
+  upstreamHeaders.set('OAI-Sites-Authorization', `Bearer ${env.BEER_MAP_ORIGIN_TOKEN}`);
+
+  const upstream = await fetch(new Request(upstreamUrl, {
+    method: request.method,
+    headers: upstreamHeaders,
+    redirect: 'manual',
+  }));
+  const headers = new Headers(upstream.headers);
+  headers.delete('Content-Length');
+  headers.delete('Content-Encoding');
+  headers.delete('Set-Cookie');
+
+  const location = headers.get('Location');
+  if (location) {
+    const target = new URL(location, upstreamUrl);
+    if (target.origin === BEER_MAP_ORIGIN) {
+      headers.set('Location', `${requestUrl.origin}${BEER_MAP_PREFIX}${target.pathname}${target.search}${target.hash}`);
+    }
+  }
+
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    headers.set(name, value);
+  }
+
+  if (request.method === 'HEAD' || !headers.get('Content-Type')?.includes('text/html')) {
+    return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
+  }
+
+  const html = (await upstream.text())
+    .replaceAll('="/_next/', `="${BEER_MAP_PREFIX}/_next/`)
+    .replaceAll('"pathname":"/"', `"pathname":"${BEER_MAP_PREFIX}/"`);
+  headers.set('Cache-Control', 'no-store');
+  headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://tiles.openfreemap.org; font-src https://tiles.openfreemap.org; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+  );
+
+  return new Response(html, {
+    status: upstream.status,
+    statusText: upstream.statusText,
+    headers,
+  });
+}
 
 function statusJson(
   value: unknown,
