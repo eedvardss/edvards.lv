@@ -3,7 +3,9 @@
   "name": "manbesi-p2p",
   "main": "src/worker.ts",
   "compatibility_date": "2026-07-15",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "workers_dev": false,
   "preview_urls": false,
   "routes": [
@@ -32,15 +34,25 @@
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["SignalingRoom"]
+      "new_sqlite_classes": [
+        "SignalingRoom"
+      ]
     },
     {
       "tag": "v2",
-      "new_sqlite_classes": ["StatusStore"]
+      "new_sqlite_classes": [
+        "StatusStore"
+      ]
     }
   ],
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1
-  }
+  },
+  "services": [
+    {
+      "binding": "BEER_MAP",
+      "service": "manbesi-beer-map"
+    }
+  ]
 }

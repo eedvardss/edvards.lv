@@ -10,7 +10,7 @@ const MAX_STATUS_BODY_SIZE = 2 * 1024;
 const MAX_STATUS_LENGTH = 64;
 const DEFAULT_STATUS = 'darbs';
 const BEER_MAP_PREFIX = '/alus';
-const BEER_MAP_ORIGIN = 'https://rigas-alus-karte.micux21.chatgpt.site';
+const BEER_MAP_ORIGIN = 'https://manbesi.lv';
 
 const SECURITY_HEADERS = {
   'Cross-Origin-Opener-Policy': 'same-origin',
@@ -24,7 +24,6 @@ const SECURITY_HEADERS = {
 
 type AppEnv = Env & {
   ACCESS_CONFIG?: string;
-  BEER_MAP_ORIGIN_TOKEN?: string;
   STATUS_UPDATE_TOKEN?: string;
   TURN_KEY_API_TOKEN?: string;
   TURN_KEY_ID?: string;
@@ -709,7 +708,7 @@ async function proxyBeerMap(request: Request, env: AppEnv, requestUrl: URL, moun
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     return new Response('Method not allowed', { status: 405, headers: { Allow: 'GET, HEAD' } });
   }
-  if (!env.BEER_MAP_ORIGIN_TOKEN) {
+  if (!env.BEER_MAP) {
     return new Response('Beer map origin is not configured', { status: 503 });
   }
 
@@ -721,9 +720,9 @@ async function proxyBeerMap(request: Request, env: AppEnv, requestUrl: URL, moun
   upstreamHeaders.delete('Authorization');
   upstreamHeaders.delete('Cookie');
   upstreamHeaders.delete('Host');
-  upstreamHeaders.set('OAI-Sites-Authorization', `Bearer ${env.BEER_MAP_ORIGIN_TOKEN}`);
+  upstreamHeaders.delete('OAI-Sites-Authorization');
 
-  const upstream = await fetch(new Request(upstreamUrl, {
+  const upstream = await env.BEER_MAP.fetch(new Request(upstreamUrl, {
     method: request.method,
     headers: upstreamHeaders,
     redirect: 'manual',
