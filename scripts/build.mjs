@@ -2,11 +2,14 @@ import { copyFile, mkdir, rm } from 'node:fs/promises';
 
 const output = new URL('../dist/', import.meta.url);
 const p2pOutput = new URL('./p2p/', output);
+const mduOutput = new URL('./mdu/', output);
 
 await rm(output, { recursive: true, force: true });
 await mkdir(p2pOutput, { recursive: true });
+await mkdir(mduOutput, { recursive: true });
 
 await Promise.all([
+  copyFile(new URL('../mdu/index.html', import.meta.url), new URL('./index.html', mduOutput)),
   copyFile(new URL('../index.html', import.meta.url), new URL('./index.html', output)),
   copyFile(new URL('../root.css', import.meta.url), new URL('./root.css', output)),
   copyFile(new URL('../root.js', import.meta.url), new URL('./root.js', output)),

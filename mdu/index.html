@@ -1,0 +1,1084 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>MDU Autumn 2026 · Semester Schedule</title>
+  <style>
+    :root {
+      --ink: #14222d;
+      --muted: #60717e;
+      --line: #dfe6ea;
+      --paper: #ffffff;
+      --soft: #f7f9fa;
+      --blue: #086f9c;
+      --blue-soft: #e8f4fa;
+      --navy: #0d3042;
+      --warn: #8a4b08;
+      --warn-soft: #fff5df;
+      --cdt: #0077a8;
+      --dva262: #6d4bb2;
+      --ena: #a84972;
+      --dva232: #237a57;
+      --mdu: #4f5d6a;
+      --rookie: #d65f17;
+      --thesis: #b45f06;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--soft);
+      font: 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    button { font: inherit; }
+    .shell { width: min(1220px, calc(100% - 40px)); margin: 0 auto; }
+    .site-header { color: var(--ink); border-bottom: 1px solid var(--line); background: var(--paper); }
+    .site-header .shell { padding: 30px 0 24px; }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    h1 { max-width: 780px; margin: 0; font-size: clamp(32px, 4vw, 48px); line-height: 1; letter-spacing: -.045em; }
+    .lede { max-width: 760px; margin: 9px 0 0; color: var(--muted); font-size: 15px; }
+    .checked { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+    .section-nav { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--line); background: rgba(255, 255, 255, .97); }
+    .section-nav .shell { display: flex; gap: 2px; overflow-x: auto; padding: 6px 0; scrollbar-width: none; }
+    .section-nav .shell::-webkit-scrollbar { display: none; }
+    .section-nav a { padding: 6px 10px; border-radius: 7px; color: var(--muted); text-decoration: none; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+    .section-nav a:hover, .section-nav a:focus-visible { color: var(--ink); background: #eaf1f5; outline: none; }
+    main { padding: 24px 0 56px; }
+    main > section { scroll-margin-top: 68px; }
+    section + section { margin-top: 36px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--line); }
+    .metric { padding: 16px 18px; background: var(--paper); }
+    .metric strong { display: block; font-size: 27px; line-height: 1.05; letter-spacing: -.03em; }
+    .metric span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .deadline-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--line); }
+    .deadline-item { min-width: 0; padding: 14px 16px; background: var(--paper); }
+    .deadline-item time { display: block; color: var(--warn); font-size: 11px; font-weight: 800; letter-spacing: .035em; text-transform: uppercase; }
+    .deadline-item strong { display: block; margin-top: 3px; font-size: 14px; line-height: 1.3; }
+    .deadline-item span { display: block; margin-top: 3px; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .deadline-empty { grid-column: 1 / -1; padding: 18px; color: var(--muted); background: var(--paper); }
+    .alert { padding: 13px 16px; border: 1px solid #ebd9b5; border-left: 3px solid #cb6c20; border-radius: var(--radius); background: #fffbf3; }
+    .alert .icon { display: none; }
+    .alert strong { display: block; }
+    .alert p { margin: 3px 0 0; color: #6e4c22; }
+    h2 { margin: 0 0 10px; font-size: 22px; line-height: 1.15; letter-spacing: -.025em; }
+    h3 { margin: 0 0 8px; font-size: 16px; line-height: 1.3; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+    .section-head p { margin: 0; color: var(--muted); font-size: 13px; }
+    .periods { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+    .period { padding: 20px; }
+    .period + .period { border-left: 1px solid var(--line); }
+    .period-label { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .period-dates { margin: 3px 0 12px; font-size: 20px; font-weight: 750; }
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill, .course-tag { display: inline-flex; align-items: center; border-radius: 999px; color: var(--ink); font-weight: 750; white-space: nowrap; }
+    .pill { padding: 4px 9px; font-size: 12px; }
+    .pill.cdt, .course-tag.cdt { color: var(--cdt); background: #e7f4f8; }
+    .pill.dva262, .course-tag.dva262 { color: var(--dva262); background: #f0ecf8; }
+    .pill.ena, .course-tag.ena { color: var(--ena); background: #f8ebf1; }
+    .pill.dva232, .course-tag.dva232 { color: var(--dva232); background: #e9f4ee; }
+    .pill.mdu, .course-tag.mdu { color: var(--mdu); background: #eef2f4; }
+    .pill.rookie, .course-tag.rookie { color: var(--rookie); background: #fff0e8; }
+    .pill.thesis, .course-tag.thesis { color: var(--thesis); background: #fff2df; }
+    .calendar-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 10px; }
+    .calendar-nav { display: flex; align-items: center; gap: 6px; }
+    .calendar-nav button {
+      min-width: 38px;
+      padding: 8px 11px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      background: var(--paper);
+      cursor: pointer;
+    }
+    .calendar-nav button:hover:not(:disabled) { border-color: #9ba9b5; background: #f8fafb; }
+    .calendar-nav button:disabled { color: #a7b0b8; cursor: not-allowed; }
+    .calendar-month { margin: 0; font-size: 18px; font-weight: 780; }
+    .calendar-filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+    .calendar-filter {
+      position: relative;
+      padding: 7px 10px 7px 24px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .calendar-filter:not(.all)::before { content: ""; position: absolute; left: 10px; top: 50%; width: 7px; height: 7px; border-radius: 50%; background: var(--filter-color); transform: translateY(-50%); }
+    .calendar-filter.all { padding-left: 10px; }
+    .calendar-filter.mdu { --filter-color: var(--mdu); }
+    .calendar-filter.rookie { --filter-color: var(--rookie); }
+    .calendar-filter.cdt { --filter-color: var(--cdt); }
+    .calendar-filter.dva262 { --filter-color: var(--dva262); }
+    .calendar-filter.ena { --filter-color: var(--ena); }
+    .calendar-filter.dva232 { --filter-color: var(--dva232); }
+    .calendar-filter.thesis { --filter-color: var(--thesis); }
+    .calendar-filter.lab { --filter-color: #71808a; }
+    .calendar-filter.deadline { --filter-color: #b45c5c; }
+    .calendar-filter.zoom { --filter-color: #5969b4; }
+    .calendar-filter:hover { border-color: var(--line); color: var(--ink); background: var(--paper); }
+    .calendar-filter:focus-visible { outline: 3px solid #b9ddec; outline-offset: 2px; }
+    .calendar-filter[aria-pressed="true"] { border-color: var(--line); color: var(--ink); background: var(--paper); }
+    .calendar-filter[aria-pressed="false"] { opacity: .48; }
+    .calendar-filter.all[aria-pressed="true"] { border-color: #c7dce6; color: var(--blue); background: var(--blue-soft); }
+    .calendar-scroll { overflow-x: auto; border: 1px solid #d5dfe5; border-radius: var(--radius); background: var(--paper); }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(126px, 1fr)); min-width: 900px; }
+    .calendar-weekday { padding: 8px 9px; border-bottom: 1px solid var(--line); color: var(--muted); background: #f8fafb; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .calendar-day { position: relative; isolation: isolate; min-height: 132px; overflow: hidden; padding: 8px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--paper); }
+    .calendar-day:nth-child(7n) { border-right: 0; }
+    .calendar-day.outside { background: #fafbfc; }
+    .calendar-day.outside .calendar-date { color: #9aa5ae; }
+    .calendar-day.today { box-shadow: inset 0 0 0 2px var(--blue); }
+    .calendar-day.passed::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      z-index: 5;
+      pointer-events: none;
+      opacity: .34;
+      background: center / 100% 100% no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M2 2L98 98M98 2L2 98' fill='none' stroke='%23cf312b' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E");
+    }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+    .calendar-date { position: relative; z-index: 1; display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .calendar-event { position: relative; z-index: 1; display: block; margin-top: 4px; padding: 5px 7px; border-left: 3px solid currentColor; border-radius: 6px; color: var(--ink); background: #f4f7f9; font-size: 10.5px; line-height: 1.28; }
+    .calendar-event b { display: block; margin-bottom: 1px; font-size: 10px; font-variant-numeric: tabular-nums; }
+    .calendar-event.cdt { color: var(--cdt); background: #edf8fc; }
+    .calendar-event.dva262 { color: var(--dva262); background: #f3f0fb; }
+    .calendar-event.ena { color: var(--ena); background: #fbf0f5; }
+    .calendar-event.dva232 { color: var(--dva232); background: #eef8f3; }
+    .calendar-event.mdu { color: var(--mdu); background: #f0f2f4; }
+    .calendar-event.rookie { color: var(--rookie); background: #fff2e9; }
+    .calendar-event.thesis { color: var(--thesis); background: #fff5e8; }
+    .calendar-event.conflict { box-shadow: inset 0 0 0 1px #cb6c20; }
+    .course-list { display: grid; gap: 10px; }
+    details.course { border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+    details.course summary { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto 28px; align-items: center; gap: 14px; padding: 16px 18px; cursor: pointer; list-style: none; }
+    details.course summary::-webkit-details-marker { display: none; }
+    details.course summary::after { content: "+"; display: grid; width: 28px; height: 28px; place-items: center; color: var(--muted); font-size: 20px; line-height: 1; }
+    details.course[open] summary::after { content: "−"; }
+    .course-tag { justify-content: center; padding: 5px 10px; font-size: 12px; }
+    .course-title strong { display: block; font-size: 16px; }
+    .course-title span { color: var(--muted); font-size: 13px; }
+    .course-meta { color: var(--muted); font-size: 13px; text-align: right; }
+    .course-body { padding: 0 18px 18px; border-top: 1px solid var(--line); }
+    .course-facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 16px 0; }
+    .fact small { display: block; color: var(--muted); }
+    .fact strong { display: block; margin-top: 2px; }
+    .assessment { width: 100%; border-collapse: collapse; }
+    .assessment th, .assessment td { padding: 8px 10px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .assessment th { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .assessment td:first-child { font-weight: 750; white-space: nowrap; }
+    .note { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 7px; }
+    .filter {
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: var(--paper);
+      cursor: pointer;
+    }
+    .filter:hover { border-color: #9ba9b5; }
+    .filter[aria-pressed="true"] { border-color: #c7dce6; color: var(--blue); background: var(--blue-soft); }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+    .schedule { width: 100%; min-width: 870px; border-collapse: collapse; }
+    .schedule th, .schedule td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .schedule th { position: sticky; top: 0; z-index: 1; color: var(--muted); background: #f8fafb; font-size: 12px; letter-spacing: .02em; }
+    .schedule tbody tr:last-child td { border-bottom: 0; }
+    .schedule tbody tr:hover:not(.month-row) { background: #fafcfd; }
+    .schedule .month-row th { position: static; padding: 10px 12px 7px; border-top: 2px solid #bfcbd4; color: var(--ink); background: var(--soft); font-size: 13px; text-transform: uppercase; }
+    .schedule .month-row:first-child th { border-top: 0; }
+    .date { white-space: nowrap; font-weight: 720; }
+    .time { white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .course-mini { display: inline-block; min-width: 68px; font-weight: 800; }
+    .course-mini.cdt { color: var(--cdt); }
+    .course-mini.dva262 { color: var(--dva262); }
+    .course-mini.ena { color: var(--ena); }
+    .course-mini.dva232 { color: var(--dva232); }
+    .course-mini.mdu { color: var(--mdu); }
+    .course-mini.rookie { color: var(--rookie); }
+    .course-mini.thesis { color: var(--thesis); }
+    .event-assessment { font-weight: 800; color: var(--warn); }
+    .room { color: #36424c; }
+    .subtle { color: var(--muted); font-size: 12px; }
+    .empty { padding: 28px !important; color: var(--muted); text-align: center !important; }
+    .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .analysis-box { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+    .analysis-box p { margin: 6px 0 0; color: var(--muted); }
+    .analysis-box ul { margin: 10px 0 0; padding-left: 20px; }
+    .analysis-box li + li { margin-top: 6px; }
+    .sources { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+    .sources summary { cursor: pointer; list-style: none; }
+    .sources summary::-webkit-details-marker { display: none; }
+    .sources summary h2 { display: inline; }
+    .sources summary::after { content: "+"; float: right; color: var(--muted); font-size: 22px; line-height: 1; }
+    .sources[open] summary::after { content: "−"; }
+    .sources ul { columns: 2; margin: 8px 0 0; padding-left: 20px; }
+    .sources li { break-inside: avoid; margin: 5px 0; }
+    footer { padding: 22px 0 38px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+
+    @media (max-width: 800px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .deadline-list { grid-template-columns: 1fr 1fr; }
+      .periods, .analysis-grid { grid-template-columns: 1fr; }
+      .period + .period { border-top: 1px solid var(--line); border-left: 0; }
+      details.course summary { grid-template-columns: 92px minmax(0, 1fr) 28px; }
+      .course-meta { display: none; }
+      .course-facts { grid-template-columns: 1fr 1fr; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 5px; }
+      .sources ul { columns: 1; }
+      .calendar-toolbar { align-items: flex-start; }
+      .section-nav .shell { padding: 7px 0; }
+    }
+    @media (max-width: 520px) {
+      .shell { width: min(100% - 22px, 1220px); }
+      .site-header .shell { padding: 25px 0 21px; }
+      h1 { font-size: 36px; }
+      main { padding-top: 16px; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .deadline-list { grid-template-columns: 1fr; }
+      .metric { padding: 14px; }
+      .metric strong { font-size: 22px; }
+      details.course summary { grid-template-columns: auto minmax(0, 1fr) 28px; gap: 10px; padding: 14px; }
+      .course-tag { justify-self: start; }
+      .course-title { grid-column: auto; }
+      .course-facts { grid-template-columns: 1fr; }
+      .assessment { font-size: 13px; }
+      .calendar-toolbar { display: grid; }
+      .calendar-nav { justify-content: space-between; }
+      section + section { margin-top: 26px; }
+    }
+
+    @media print {
+      @page { size: A4 landscape; margin: 11mm; }
+      body { background: white; font-size: 10px; }
+      .shell { width: 100%; }
+      .site-header .shell { padding: 0 0 12px; }
+      .section-nav { display: none; }
+      h1 { font-size: 27px; }
+      .lede { font-size: 11px; }
+      main { padding: 12px 0; }
+      section + section { margin-top: 16px; }
+      .filters, .calendar-filters { display: none; }
+      .calendar-nav { display: none; }
+      details.course:not([open]) .course-body { display: block; }
+      details.course summary::after { display: none; }
+      .schedule { min-width: 0; }
+      .schedule th, .schedule td { padding: 4px 5px; }
+      .table-wrap { overflow: visible; }
+      .schedule th { position: static; }
+      a { color: inherit; text-decoration: none; }
+      footer { padding-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell">
+      <p class="eyebrow">MDU · Autumn 2026</p>
+      <h1>Semester schedule</h1>
+      <p class="lede">Courses, thesis, welcome activities and the Rookie period.</p>
+      <p class="checked">Updated 11 Sep · Sweden time · completion status updated today · Kronox last checked 4 Sep.</p>
+    </div>
+  </header>
+
+  <nav class="section-nav" aria-label="Schedule sections">
+    <div class="shell">
+      <a href="#overview">Overview</a>
+      <a href="#upcoming">Deadlines</a>
+      <a href="#calendar">Calendar</a>
+      <a href="#courses">Courses</a>
+      <a href="#timeline">Timeline</a>
+      <a href="#notes">Important notes</a>
+      <a href="#sources">Sources</a>
+    </div>
+  </nav>
+
+  <main class="shell">
+    <section id="overview" aria-label="Semester summary">
+      <div class="metrics">
+        <div class="metric"><strong>30</strong><span>total credits</span></div>
+        <div class="metric"><strong>5</strong><span>scheduled study commitments</span></div>
+        <div class="metric"><strong id="event-count">104</strong><span>schedule entries</span></div>
+        <div class="metric"><strong>1</strong><span>confirmed conflict date</span></div>
+      </div>
+    </section>
+
+    <section id="upcoming" aria-labelledby="upcoming-heading">
+      <div class="section-head">
+        <div>
+          <h2 id="upcoming-heading">Upcoming deadlines</h2>
+          <p>Your next four unfinished dated items, updated automatically.</p>
+        </div>
+      </div>
+      <div class="deadline-list" id="upcoming-deadlines" aria-live="polite"></div>
+    </section>
+
+    <section>
+      <div class="alert" role="alert">
+        <div class="icon" aria-hidden="true">!</div>
+        <div>
+          <strong>1 confirmed scheduling conflict</strong>
+          <p>31 Aug: the mandatory exchange meeting overlapped Academic English. The updated thesis timetable does not publish event times, so 1 Sep, 1 Oct and 22 Oct still need a time check against MDU classes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="arrival-heading">
+      <div class="section-head">
+        <div>
+          <h2 id="arrival-heading">Semester start</h2>
+        </div>
+      </div>
+      <div class="analysis-grid">
+        <div class="analysis-box">
+          <h3>25–27 August · Västerås</h3>
+          <ul>
+            <li><strong>Tue 25 Aug, 16:00–18:00:</strong> Reception services, main entrance. Optional for you because your accommodation is through Qasa.</li>
+            <li><strong>Wed 26 Aug, 15:30–16:10:</strong> English campus tour.</li>
+            <li><strong>Wed 26 Aug, 16:00–18:00:</strong> Reception services, arrival registration and student mingling, main entrance.</li>
+            <li><strong>Thu 27 Aug, 12:00–16:00:</strong> Meet MDU support staff at The Preview.</li>
+          </ul>
+        </div>
+        <div class="analysis-box">
+          <h3>28–31 August · Official start</h3>
+          <ul>
+            <li><strong>Fri 28 Aug, 12:00:</strong> Free bus departs Västerås for Eskilstuna; boarding from 11:45.</li>
+            <li><strong>Fri 28 Aug, 13:00–16:00:</strong> The Welcoming, Campus Eskilstuna; return bus at 16:15.</li>
+            <li><strong>Mon 31 Aug, 10:15–12:00:</strong> CDT204 course introduction, R2-121.</li>
+            <li><strong>Mon 31 Aug, 16:15–18:00:</strong> Mandatory exchange-student meeting, BETA.</li>
+            <li><strong>Mon 31 Aug, 17:15–20:00:</strong> ENA801 Seminar 1 on Zoom — overlaps the mandatory meeting until 18:00.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="period-heading">
+      <div class="section-head">
+        <div>
+          <h2 id="period-heading">Semester shape</h2>
+          <p>ENA801 runs across both study periods at 25%.</p>
+        </div>
+      </div>
+      <div class="periods">
+        <div class="period">
+          <div class="period-label">Study period 1</div>
+          <div class="period-dates">31 Aug – 8 Nov 2026</div>
+          <div class="pills">
+            <span class="pill cdt">CDT204 · 50%</span>
+            <span class="pill dva262">DVA262 · 50%</span>
+            <span class="pill ena">ENA801 · 25%</span>
+            <span class="pill thesis">THESIS · milestones</span>
+          </div>
+        </div>
+        <div class="period">
+          <div class="period-label">Study period 2</div>
+          <div class="period-dates">9 Nov 2026 – 17 Jan 2027</div>
+          <div class="pills">
+            <span class="pill dva232">DVA232 · 50%</span>
+            <span class="pill ena">ENA801 · 25%</span>
+            <span class="pill thesis">THESIS · milestones through Dec</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="calendar" aria-labelledby="calendar-heading">
+      <div class="section-head">
+        <div>
+          <h2 id="calendar-heading">Calendar view</h2>
+          <p>Choose what appears, then move month by month.</p>
+        </div>
+      </div>
+      <div class="calendar-toolbar">
+        <p class="calendar-month" id="calendar-month" aria-live="polite"></p>
+        <div class="calendar-nav" aria-label="Calendar navigation">
+          <button type="button" id="calendar-prev" aria-label="Previous month">←</button>
+          <button type="button" id="calendar-today">Today</button>
+          <button type="button" id="calendar-next" aria-label="Next month">→</button>
+        </div>
+      </div>
+      <div class="calendar-filters" aria-label="Calendar visibility filters">
+        <button class="calendar-filter all" type="button" data-calendar-all aria-pressed="true">Show all</button>
+        <button class="calendar-filter lab" type="button" data-calendar-labs aria-pressed="true" title="Show or hide regular lab sessions. Lab exams and demo deadlines remain visible.">Lab sessions</button>
+        <button class="calendar-filter deadline" type="button" data-calendar-deadlines aria-pressed="true" title="Show or hide assignment, submission, preparation and acceptance deadlines. Exams remain visible.">Deadlines</button>
+        <button class="calendar-filter zoom" type="button" data-calendar-zoom aria-pressed="true" title="Show or hide events whose published location is Zoom.">Zoom</button>
+        <button class="calendar-filter mdu" type="button" data-calendar-course="MDU" aria-pressed="true">MDU events</button>
+        <button class="calendar-filter rookie" type="button" data-calendar-course="ROOKIE" aria-pressed="true">Rookie period</button>
+        <button class="calendar-filter cdt" type="button" data-calendar-course="CDT204" aria-pressed="true">Computer Architecture</button>
+        <button class="calendar-filter dva262" type="button" data-calendar-course="DVA262" aria-pressed="true">Machine Learning</button>
+        <button class="calendar-filter ena" type="button" data-calendar-course="ENA801" aria-pressed="true">Academic English</button>
+        <button class="calendar-filter dva232" type="button" data-calendar-course="DVA232" aria-pressed="true">Mobile Applications</button>
+        <button class="calendar-filter thesis" type="button" data-calendar-course="THESIS" aria-pressed="true">Thesis milestones</button>
+      </div>
+      <div class="calendar-scroll">
+        <div class="calendar-grid" id="calendar-grid" aria-label="Monthly semester calendar"></div>
+      </div>
+      <p class="note">Orange outlines mark conflicts. Parallel lab rooms count as one event.</p>
+    </section>
+
+    <section id="courses" aria-labelledby="course-heading">
+      <div class="section-head">
+        <div>
+          <h2 id="course-heading">Course details</h2>
+        </div>
+      </div>
+
+      <div class="course-list">
+        <details class="course">
+          <summary>
+            <span class="course-tag cdt">CDT204</span>
+            <span class="course-title"><strong>Computer Architecture</strong><span>MDU-10021 · Västerås · English</span></span>
+            <span class="course-meta">7.5 credits · 50%</span>
+          </summary>
+          <div class="course-body">
+            <div class="course-facts">
+              <div class="fact"><small>Official course period</small><strong>31 Aug – 8 Nov 2026</strong></div>
+              <div class="fact"><small>First published event</small><strong>Mon 31 Aug, 10:15</strong></div>
+              <div class="fact"><small>Next graded deadline</small><strong>Mon 14 Sep, 12:00</strong></div>
+              <div class="fact"><small>Coordinator</small><strong>Afshin Ameri</strong></div>
+            </div>
+            <table class="assessment">
+              <thead><tr><th>Code</th><th>Assessment</th><th>Credits / grade</th><th>Published timing</th></tr></thead>
+              <tbody>
+                <tr><td>A0</td><td><a href="https://canvas.mdu.se/courses/20865/assignments/129320">Course-information confirmation</a></td><td>Mandatory prerequisite</td><td><strong>Completed</strong></td></tr>
+                <tr><td>A1</td><td><a href="https://canvas.mdu.se/courses/20865/assignments/129321">Bitwise</a></td><td>LAB1 component</td><td><strong>Completed</strong></td></tr>
+                <tr><td>A2</td><td><a href="https://canvas.mdu.se/courses/20865/assignments/129322">Intro to MIPS</a></td><td>LAB1 component</td><td>28 Sep, 12:00</td></tr>
+                <tr><td>A3</td><td><a href="https://canvas.mdu.se/courses/20865/assignments/129323">Pipelining with MIPS</a></td><td>LAB1 component</td><td>12 Oct, 12:00</td></tr>
+                <tr><td>A4</td><td><a href="https://canvas.mdu.se/courses/20865/assignments/129324">Cache Behaviour</a></td><td>LAB1 component</td><td>26 Oct, 12:00</td></tr>
+                <tr><td>LAB1</td><td>In-person multiple-choice lab examination</td><td>3 cr · G/U</td><td>2 Nov, 09:15–12:00 · Beta</td></tr>
+                <tr><td>TEN1</td><td>Written examination</td><td>4.5 cr · grades 3/4/5</td><td><strong>5 Nov, 08:30–12:30 · room TBD</strong></td></tr>
+              </tbody>
+            </table>
+            <p class="note">Canvas requires A0 before the other assignments can be completed. Lab deadlines determine support priority; final LAB1 grading is through the 2 Nov in-person quiz. Parallel lab rooms are alternatives. Contact teachers by email with “CDT204” in the subject; do not use Canvas Inbox for this course.</p>
+          </div>
+        </details>
+
+        <details class="course">
+          <summary>
+            <span class="course-tag dva262">DVA262</span>
+            <span class="course-title"><strong>Machine Learning Concepts</strong><span>MDU-10094 · Västerås · English</span></span>
+            <span class="course-meta">7.5 credits · 50%</span>
+          </summary>
+          <div class="course-body">
+            <div class="course-facts">
+              <div class="fact"><small>Official course period</small><strong>31 Aug – 8 Nov 2026</strong></div>
+              <div class="fact"><small>First published event</small><strong>Tue 1 Sep, 10:15</strong></div>
+              <div class="fact"><small>First exam</small><strong>Thu 5 Nov, 14:30</strong></div>
+              <div class="fact"><small>Coordinator / teacher</small><strong>Mobyen Uddin Ahmed</strong></div>
+            </div>
+            <table class="assessment">
+              <thead><tr><th>Code</th><th>Assessment</th><th>Credits / grade</th><th>Published timing</th></tr></thead>
+              <tbody>
+                <tr><td>LAB1</td><td>k-Nearest Neighbours</td><td>1 cr · G/U</td><td><strong>Personal target: demonstrate 17 Sep</strong></td></tr>
+                <tr><td>LAB2</td><td>Decision Tree</td><td>1 cr · G/U</td><td><strong>Personal target: demonstrate 17 Sep</strong></td></tr>
+                <tr><td>LAB3</td><td>Logistic Regression</td><td>1 cr · G/U</td><td rowspan="3">All five demos remain officially available through 15 Oct. Upload only after instructor approval.</td></tr>
+                <tr><td>LAB4</td><td>Linear Regression</td><td>1 cr · G/U</td></tr>
+                <tr><td>LAB5</td><td>Clustering</td><td>1 cr · G/U</td></tr>
+                <tr><td>LAB demos</td><td>Additional examination windows</td><td>By arrangement</td><td>12 Nov 2026 and 14 Jan 2027, 13:15–17:00</td></tr>
+                <tr><td>TEN1</td><td>Written examination</td><td>2.5 cr · U/3/4/5</td><td><strong>5 Nov, 14:30–17:30</strong> · later sittings 4 Dec 2026 and 27 Aug 2027</td></tr>
+              </tbody>
+            </table>
+            <p class="note">For the 12 Nov or 14 Jan demo, contact the lab instructor at least one week ahead to arrange the exact time and place. Canvas lists groups 1–10 in R1-502, 11–20 in R1-506 and 21–31 in R2-502, but your Canvas account currently has no group assigned. Contact: <a href="mailto:mobyen.uddin.ahmed@mdu.se">mobyen.uddin.ahmed@mdu.se</a>.</p>
+          </div>
+        </details>
+
+        <details class="course">
+          <summary>
+            <span class="course-tag ena">ENA801</span>
+            <span class="course-title"><strong>Academic English</strong><span>MDU-10138 · Distance + on-campus exam · English</span></span>
+            <span class="course-meta">7.5 credits · 25%</span>
+          </summary>
+          <div class="course-body">
+            <div class="course-facts">
+              <div class="fact"><small>Official course period</small><strong>31 Aug 2026 – 17 Jan 2027</strong></div>
+              <div class="fact"><small>First published seminar</small><strong>Mon 31 Aug, 17:15</strong></div>
+              <div class="fact"><small>Final assessment</small><strong>Wed 13 Jan, 17:30</strong></div>
+              <div class="fact"><small>Scheduled teacher</small><strong>Maria Damkjaer</strong></div>
+            </div>
+            <table class="assessment">
+              <thead><tr><th>Code</th><th>Assessment</th><th>Credits / grade</th><th>Published timing</th></tr></thead>
+              <tbody>
+                <tr><td>NÄR1</td><td>Compulsory attendance</td><td>1 cr · G/U</td><td>Eight Zoom seminars · 80% required · two absences allowed</td></tr>
+                <tr><td>ÖVN1</td><td><a href="https://canvas.mdu.se/courses/21404/assignments/129001">Canvas quizzes</a></td><td>1.5 cr · G/U</td><td>Quiz 1: 14 Sep, 23:59 · 80% required in each quiz · unlimited attempts</td></tr>
+                <tr><td>INL1.1</td><td><a href="https://canvas.mdu.se/courses/21404/assignments/129615">Topic-discovery video</a></td><td rowspan="5">INL1 total: 3 cr · U/G/VG</td><td><strong>Completed</strong></td></tr>
+                <tr><td>INL1.2</td><td>Credible-sources screen recording</td><td>11 Oct, 23:59</td></tr>
+                <tr><td>INL1.3a</td><td>First essay draft</td><td>4 Nov, 23:59</td></tr>
+                <tr><td>INL1.3b</td><td>Peer feedback and feedforward</td><td>18 Nov, 23:59</td></tr>
+                <tr><td>INL1.4</td><td>Final essay + 10–15 minute oral presentation</td><td>7 Jan, 23:59</td></tr>
+                <tr><td>TEN1</td><td>On-campus Inspera exam on your own laptop</td><td>2 cr · U/G/VG</td><td><strong>13 Jan, 14:30–17:30</strong> · register in Ladok and test SEB by 3 Jan</td></tr>
+              </tbody>
+            </table>
+            <p class="note">You already notified Maria about missing Seminar 1; Canvas allows two absences total. Bring ID to TEN1 and make sure your laptop connects to Eduroam. <strong>Course rule:</strong> generative AI is prohibited for coursework, including brainstorming, drafting, source searching, rewriting, polishing and AI grammar tools.</p>
+          </div>
+        </details>
+
+        <details class="course">
+          <summary>
+            <span class="course-tag dva232">DVA232</span>
+            <span class="course-title"><strong>Programming Mobile Applications</strong><span>MDU-10084 · Västerås · English</span></span>
+            <span class="course-meta">7.5 credits · 50%</span>
+          </summary>
+          <div class="course-body">
+            <div class="course-facts">
+              <div class="fact"><small>Official course period</small><strong>9 Nov 2026 – 17 Jan 2027</strong></div>
+              <div class="fact"><small>First published event</small><strong>Mon 9 Nov, 13:15</strong></div>
+              <div class="fact"><small>Last scheduled assessment</small><strong>Wed 13 Jan, presentation</strong></div>
+              <div class="fact"><small>Coordinator</small><strong>Afshin Ameri</strong></div>
+            </div>
+            <table class="assessment">
+              <thead><tr><th>Code</th><th>Assessment</th><th>Credits / grade</th><th>Published timing</th></tr></thead>
+              <tbody>
+                <tr><td>INL1</td><td>Written assignment</td><td>1.5 cr · G/U</td><td>Deadline not in Kronox</td></tr>
+                <tr><td>LAB1</td><td>Laboratory work</td><td>2 cr · G/U</td><td>Deadline not in Kronox</td></tr>
+                <tr><td>PRO1</td><td>Project</td><td>4 cr · U/3/4/5</td><td>Presentation: 13 Jan, 09:15–12:00, My</td></tr>
+              </tbody>
+            </table>
+            <p class="note">There is no sit-down written exam in the syllabus. Assessment is assignment + lab work + project. Parallel lab rooms are allocation alternatives. The DVA232 Canvas shell is not visible yet; the course starts 9 Nov. Contact: <a href="mailto:afshin.ameri@mdu.se">afshin.ameri@mdu.se</a>.</p>
+          </div>
+        </details>
+
+        <details class="course">
+          <summary>
+            <span class="course-tag thesis">THESIS</span>
+            <span class="course-title"><strong>Thesis milestones</strong><span>RTU / RBS · Your attendance mode: Zoom</span></span>
+            <span class="course-meta">Sep 2026 – May 2027</span>
+          </summary>
+          <div class="course-body">
+            <div class="course-facts">
+              <div class="fact"><small>First milestone</small><strong>1 Sep 2026</strong></div>
+              <div class="fact"><small>Autumn fixed dates</small><strong>10 milestones</strong></div>
+              <div class="fact"><small>Published times</small><strong>None · check RBS/Zoom</strong></div>
+              <div class="fact"><small>Topic contact</small><strong>Ronalds Cinks</strong></div>
+            </div>
+            <table class="assessment">
+              <thead><tr><th>Milestone</th><th>Deliverable</th><th>Grading</th><th>Date</th></tr></thead>
+              <tbody>
+                <tr><td>Topic</td><td>Introduction seminar</td><td>Mandatory attendance</td><td><strong>1 Sep 2026</strong></td></tr>
+                <tr><td>Topic</td><td>Topic acceptance</td><td>Pass/fail · process leads</td><td><strong>29 Sep 2026</strong></td></tr>
+                <tr><td>Research proposal</td><td>Writing seminar</td><td>Briefing</td><td>1 Oct 2026</td></tr>
+                <tr><td>Literature review</td><td>Seminar</td><td>Briefing</td><td>20 Oct 2026</td></tr>
+                <tr><td>Research proposal</td><td>Presentation</td><td>Formative 1–10 · committee</td><td><strong>22 Oct 2026</strong></td></tr>
+                <tr><td>Research proposal</td><td>Written submission</td><td>Summative 1–10 · supervisor · must score above 4</td><td><strong>25 Oct 2026</strong></td></tr>
+                <tr><td>Literature review</td><td>APA seminar</td><td>Mandatory attendance</td><td>TBA</td></tr>
+                <tr><td>Research design/poster</td><td>Seminar</td><td>Briefing</td><td>1 Dec 2026</td></tr>
+                <tr><td>Literature review</td><td>Presentation</td><td>Formative 1–10 · committee</td><td><strong>3 Dec 2026</strong></td></tr>
+                <tr><td>Literature review</td><td>Written submission · about 80% of final version</td><td>Summative 1–10 · supervisor · must score above 4</td><td><strong>6 Dec 2026</strong></td></tr>
+                <tr><td>Research design/poster</td><td>Presentation</td><td>Formative 1–10 · committee</td><td><strong>18 Dec 2026</strong></td></tr>
+                <tr><td>Working on solution</td><td>Progress report 1</td><td>Pass/fail · supervisor</td><td>January 2027</td></tr>
+                <tr><td>Working on solution</td><td>Progress report 2</td><td>Pass/fail · supervisor</td><td>February 2027</td></tr>
+                <tr><td>Results</td><td>Seminar</td><td>Briefing</td><td>End of February</td></tr>
+                <tr><td>Results</td><td>Presentation</td><td>Formative 1–10 · committee</td><td>TBA</td></tr>
+                <tr><td>Results</td><td>Written submission</td><td>Summative 1–10 · supervisor · must score above 4</td><td><strong>21 Mar 2027</strong></td></tr>
+                <tr><td>Final thesis</td><td>Finalisation seminar</td><td>Briefing</td><td>Middle of March</td></tr>
+                <tr><td>Final thesis</td><td>Written submission</td><td>Summative 1–10 · supervisor + reviewer</td><td>Middle of April</td></tr>
+                <tr><td>Final thesis</td><td>Final presentation</td><td>Thesis committee decides final mark</td><td>Middle of May</td></tr>
+              </tbody>
+            </table>
+            <p class="note">The old Tuesday/Thursday recurrence has been removed. Only exact autumn dates are placed in the calendar. Times, Zoom links, the APA seminar, Results presentation and precise spring dates remain unpublished. For topic acceptance, agree with a supervisor and email the agreed topic to <a href="mailto:ronalds.cinks@rbs.lv">ronalds.cinks@rbs.lv</a>.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="timeline" aria-labelledby="schedule-heading">
+      <div class="section-head">
+        <div>
+          <h2 id="schedule-heading">Full chronological schedule</h2>
+          <p id="schedule-count">102 published event slots · all commitments</p>
+        </div>
+        <div class="filters" aria-label="Filter schedule">
+          <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
+          <button class="filter" type="button" data-filter="MDU" aria-pressed="false">MDU events</button>
+          <button class="filter" type="button" data-filter="ROOKIE" aria-pressed="false">IC Rookie period</button>
+          <button class="filter" type="button" data-filter="CDT204" aria-pressed="false">CDT204</button>
+          <button class="filter" type="button" data-filter="DVA262" aria-pressed="false">DVA262</button>
+          <button class="filter" type="button" data-filter="ENA801" aria-pressed="false">ENA801</button>
+          <button class="filter" type="button" data-filter="DVA232" aria-pressed="false">DVA232</button>
+          <button class="filter" type="button" data-filter="THESIS" aria-pressed="false">RTU Thesis</button>
+          <button class="filter" type="button" data-filter="assessment" aria-pressed="false">Assessments only</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="schedule">
+          <thead>
+            <tr><th>Date</th><th>Time</th><th>Course</th><th>Event</th><th>Room / link location</th><th>Teacher / group note</th></tr>
+          </thead>
+          <tbody id="schedule-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="notes" aria-labelledby="analysis-heading">
+      <h2 id="analysis-heading">Overlap and pressure-point check</h2>
+      <div class="analysis-grid">
+        <div class="analysis-box">
+          <h3>Thesis times still need confirmation</h3>
+          <p>The updated RBS table replaces the old twice-weekly pattern with milestone dates, but it publishes no start or end times.</p>
+          <ul>
+            <li><strong>1 Sep:</strong> mandatory thesis introduction shares the day with DVA262 10:15–12:00.</li>
+            <li><strong>1 Oct:</strong> thesis seminar shares the day with CDT204 09:15–12:00 and DVA262 13:15–17:00.</li>
+            <li><strong>22 Oct:</strong> thesis presentation shares the day with CDT204 09:15–12:00.</li>
+            <li>These are possible conflicts only; confirm the thesis time and Zoom link before assuming an overlap.</li>
+            <li>CDT204 Monday lab rooms are alternatives.</li>
+            <li>DVA262 A/B/C lab rooms are alternatives.</li>
+            <li>DVA232 paired lab rooms are alternatives.</li>
+          </ul>
+        </div>
+        <div class="analysis-box">
+          <h3>Days to watch</h3>
+          <ul>
+            <li><strong>31 Aug:</strong> mandatory exchange meeting runs 16:15–18:00; ENA801 starts at 17:15 — a 45-minute overlap.</li>
+            <li><strong>31 Aug:</strong> the optional IC Student Mingel runs 17:00–20:00, so it also clashes with the mandatory meeting and ENA801. Prioritise the required meeting and seminar.</li>
+            <li><strong>20, 22 and 25 Oct:</strong> thesis literature-review seminar, research-proposal presentation and research-proposal submission.</li>
+            <li><strong>14 Sep, 28 Sep, 12 Oct, 26 Oct:</strong> CDT204 morning lab plus ENA801 17:15.</li>
+            <li><strong>5 Nov:</strong> CDT204 TEN1 runs 08:30–12:30, followed by DVA262 TEN1 at 14:30–17:30. They do not overlap, but it is a heavy double-exam day.</li>
+            <li><strong>9 Nov and 23 Nov:</strong> DVA232 ends 15:00; ENA801 starts 17:15.</li>
+            <li><strong>13 Jan:</strong> DVA232 presentation 09:15–12:00, then ENA801 TEN1 14:30–17:30. DVA262 has a lab-demo window the following day.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="missing-heading">
+      <h2 id="missing-heading">What still needs to appear later</h2>
+      <div class="analysis-grid">
+        <div class="analysis-box">
+          <h3>Still waiting for official timing</h3>
+          <ul>
+            <li>Room allocations for DVA262 TEN1 and ENA801 TEN1.</li>
+            <li>Room allocation for CDT204 TEN1 on 5 Nov.</li>
+            <li>DVA232 assignment and lab deadlines.</li>
+            <li>Any later room, teacher or cancellation changes in Kronox.</li>
+          </ul>
+        </div>
+        <div class="analysis-box">
+          <h3>Still waiting in Canvas</h3>
+          <ul>
+            <li>DVA232 course shell; the course begins 9 Nov.</li>
+            <li>Your DVA262 lab-group number and exact demo appointments.</li>
+            <li>ENA801 submission pages for Parts 2–4 and Quizzes 2–6.</li>
+            <li>Zoom links and any changed course-specific instructions.</li>
+            <li>Thesis event times and Zoom links.</li>
+            <li>Thesis APA seminar, Results presentation and exact spring-semester dates.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <details class="sources" id="sources">
+      <summary><h2 id="sources-heading">Official sources</h2></summary>
+      <p class="note">Official course pages, schedules and semester information.</p>
+      <ul>
+        <li><a href="https://webbschema.mdu.se/setup/jsp/Schema.jsp?startDatum=idag&amp;intervallTyp=a&amp;intervallAntal=1&amp;sprak=SV&amp;sokMedAND=true&amp;forklaringar=true&amp;resurser=k.CDT204-10021H26-">CDT204 Kronox schedule</a></li>
+        <li><a href="https://webbschema.mdu.se/setup/jsp/Schema.jsp?startDatum=idag&amp;intervallTyp=a&amp;intervallAntal=1&amp;sprak=SV&amp;sokMedAND=true&amp;forklaringar=true&amp;resurser=k.DVA262-10094H26-">DVA262 Kronox schedule</a></li>
+        <li><a href="https://webbschema.mdu.se/setup/jsp/Schema.jsp?startDatum=idag&amp;intervallTyp=a&amp;intervallAntal=1&amp;sprak=SV&amp;sokMedAND=true&amp;forklaringar=true&amp;resurser=k.ENA801-10138H26-">ENA801 Kronox schedule</a></li>
+        <li><a href="https://webbschema.mdu.se/setup/jsp/Schema.jsp?startDatum=idag&amp;intervallTyp=a&amp;intervallAntal=1&amp;sprak=SV&amp;sokMedAND=true&amp;forklaringar=true&amp;resurser=k.DVA232-10084H26-">DVA232 Kronox schedule</a></li>
+        <li><a href="https://canvas.mdu.se/courses/20865">CDT204 Canvas</a> · <a href="https://canvas.mdu.se/courses/20894">DVA262 Canvas</a> · <a href="https://canvas.mdu.se/courses/21404">ENA801 Canvas</a></li>
+        <li><a href="https://www.mdu.se/en/malardalen-university/education/courses?kod=CDT204">CDT204 course page</a> · <a href="https://www.mdu.se/en/malardalen-university/education/course-syllabus?id=7793aee2-3b13-11f0-b454-10049b20482b">syllabus</a></li>
+        <li><a href="https://www.mdu.se/en/malardalen-university/education/courses?kod=DVA262">DVA262 course page</a> · <a href="https://www.mdu.se/en/malardalen-university/education/course-syllabus?id=164a2e7e-d439-11f0-b415-d312a71c4fd5">syllabus</a></li>
+        <li><a href="https://www.mdu.se/en/malardalen-university/education/courses?kod=DVA232">DVA232 course page</a> · <a href="https://www.mdu.se/en/malardalen-university/education/course-syllabus?id=f824221c-d413-11f0-b415-d312a71c4fd5">syllabus</a></li>
+        <li><a href="https://www.mdu.se/en/malardalen-university/student/new-student/the-preview">The Preview programme</a> · <a href="https://www.mdu.se/en/malardalen-university/calendar/archive/2026-08-28-the-welcoming">The Welcoming programme</a></li>
+        <li><a href="file:///Users/edvards/Downloads/Rookie%20period%20fall%2026.pdf">International Committee Rookie period Fall 2026 PDF</a></li>
+        <li><a href="https://mail.google.com/mail/#all/1a032ab64e81baa1">Latest MDU important-information email</a></li>
+        <li>Updated RBS thesis milestone timetable · screenshots supplied 1 Sep 2026</li>
+        <li><a href="file:///Users/edvards/Downloads/CSOT5_26Fall_Schedule.pdf">Earlier RTU CSOT5 session schedule PDF</a> · superseded for thesis milestones</li>
+        <li><a href="https://www.mdu.se/en/malardalen-university/student/practical-things-about-studying/schedules-and-academic-calendar">MDU schedules and academic calendar</a></li>
+      </ul>
+    </details>
+  </main>
+
+  <footer class="shell">Updated 11 September 2026 · Completion status and personal DVA262 demo target updated · Kronox last checked 4 September · Recheck before assessments.</footer>
+
+  <script>
+    const events = [
+      ["2026-08-31","10:15","12:00","CDT204","Course introduction","R2-121","Afshin Ameri (aai04)",false],
+      ["2026-08-31","17:15","20:00","ENA801","Seminar 1","Zoom","Maria Damkjaer",false],
+      ["2026-09-01","10:15","12:00","DVA262","Lecture 1","R2-208","Mobyen Ahmed",false],
+      ["2026-09-03","10:15","12:00","CDT204","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-09-03","13:15","15:00","DVA262","Lecture 2","R2-208","Mobyen Ahmed",false],
+      ["2026-09-07","10:15","12:00","CDT204","Lab","U2-039 / R2-506","Parallel rooms · Jean Malm / Giulia Castorino",false],
+      ["2026-09-08","10:15","12:00","DVA262","Lecture 3","R2-208","Mobyen Ahmed",false],
+      ["2026-09-10","10:15","12:00","CDT204","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-09-10","13:15","17:00","DVA262","Lab session 1","A: R1-502 · B: R1-506 · C: R2-502","Choose assigned group · Mobyen Ahmed",false],
+      ["2026-09-13","23:59","","ENA801","INL1 Part 1 due","Canvas","Topic-discovery video",true],
+      ["2026-09-14","09:15","12:00","CDT204","Lab","U2-039 / R2-502","Parallel rooms",false],
+      ["2026-09-14","12:00","","CDT204","Assignment 1 due","Canvas","Bitwise",true],
+      ["2026-09-14","17:15","20:00","ENA801","Seminar 2","Zoom","Maria Damkjaer",false],
+      ["2026-09-14","23:59","","ENA801","Quiz 1 due","Canvas","80% required · unlimited attempts",true],
+      ["2026-09-15","10:15","12:00","DVA262","Lecture 4","R2-208","Mobyen Ahmed",false],
+      ["2026-09-17","09:15","12:00","CDT204","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-09-17","13:15","17:00","DVA262","Lab session 2","A: R1-502 · B: R1-506 · C: R2-502","Choose assigned group · Mobyen Ahmed",false],
+      ["2026-09-17","17:00","","DVA262","KNN + Decision Tree demo deadline","Lab session 2","Personal target · official final demo deadline remains 15 Oct",true],
+      ["2026-09-21","09:15","12:00","CDT204","Lab","U2-039 / R2-502","Parallel rooms",false],
+      ["2026-09-22","10:15","12:00","DVA262","Lecture 5","R2-205","Mobyen Ahmed",false],
+      ["2026-09-24","09:15","12:00","CDT204","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-09-24","13:15","17:00","DVA262","Lab session 3","A: R1-502 · B: R1-506 · C: R2-502","Choose assigned group · Mobyen Ahmed",false],
+      ["2026-09-28","09:15","12:00","CDT204","Lab","U2-039 / R2-502","Parallel rooms",false],
+      ["2026-09-28","12:00","","CDT204","Assignment 2 due","Canvas","Intro to MIPS",true],
+      ["2026-09-28","17:15","20:00","ENA801","Seminar 3","Zoom","Maria Damkjaer",false],
+      ["2026-09-29","10:15","12:00","DVA262","Lecture 6","R2-205","Mobyen Ahmed",false],
+      ["2026-10-01","09:15","12:00","CDT204","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-10-01","13:15","17:00","DVA262","Lab session 4","A: R1-502 · B: R1-506 · C: R2-502","Choose assigned group · Mobyen Ahmed",false],
+      ["2026-10-05","09:15","12:00","CDT204","Lab","U2-039 / R2-502","Parallel rooms",false],
+      ["2026-10-06","10:15","12:00","DVA262","Lecture 7","R2-205","Mobyen Ahmed",false],
+      ["2026-10-08","09:15","12:00","CDT204","Lecture","Kappa","Afshin Ameri",false],
+      ["2026-10-08","13:15","17:00","DVA262","Lab session 5","A: R1-502 · B: R1-506 · C: R2-502","Choose assigned group · Mobyen Ahmed",false],
+      ["2026-10-11","23:59","","ENA801","INL1 Part 2 due","Canvas","Credible-sources screen recording",true],
+      ["2026-10-12","09:15","12:00","CDT204","Lab","R2-506 / R2-502","Parallel rooms",false],
+      ["2026-10-12","12:00","","CDT204","Assignment 3 due","Canvas","Pipelining with MIPS",true],
+      ["2026-10-12","17:15","20:00","ENA801","Seminar 4","Zoom","Maria Damkjaer",false],
+      ["2026-10-13","10:15","12:00","DVA262","Lecture 8","R2-205","Mobyen Ahmed",false],
+      ["2026-10-15","09:15","12:00","CDT204","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-10-15","13:15","17:00","DVA262","Lab session 6 / first demo deadline","A: R1-502 · B: R1-506 · C: R2-502","Demonstrate during 10 Sep–15 Oct labs or by today",true],
+      ["2026-10-19","09:15","12:00","CDT204","Lab","U2-039 / R2-502","Parallel rooms",false],
+      ["2026-10-22","09:15","12:00","CDT204","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-10-26","09:15","12:00","CDT204","Lab","U2-039 / U2-006","Parallel rooms",false],
+      ["2026-10-26","12:00","","CDT204","Assignment 4 due","Canvas","Cache Behaviour",true],
+      ["2026-10-26","17:15","20:00","ENA801","Seminar 5","Zoom","Maria Damkjaer",false],
+      ["2026-10-29","09:15","12:00","CDT204","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-11-02","09:15","12:00","CDT204","LAB exam","Beta","A.-M. Abelli · G. Capannini · J. Malm",true],
+      ["2026-11-04","23:59","","ENA801","INL1 Part 3 first draft due","Canvas","Essay draft for peer review",true],
+      ["2026-11-05","08:30","12:30","CDT204","TEN1 written examination","Västerås · room TBD","Newly published in Kronox · grades U/3/4/5",true],
+      ["2026-11-05","14:30","17:30","DVA262","TEN1 written examination","Västerås · room TBD","First sitting · grades U/3/4/5",true],
+      ["2026-11-09","13:15","15:00","DVA232","Course introduction","Lambda","Afshin Ameri (aai04)",false],
+      ["2026-11-09","17:15","20:00","ENA801","Seminar 6","Zoom","Maria Damkjaer",false],
+      ["2026-11-11","10:15","12:00","DVA232","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-11-12","13:15","17:00","DVA262","Lab-demonstration window","By arrangement","Contact instructor by 5 Nov; exact time and place by arrangement",true],
+      ["2026-11-16","13:15","15:00","DVA232","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-11-18","10:15","12:00","DVA232","Lab","U2-036 / U2-003","Parallel rooms · Philip Rautell Lindstedt / Leo Hatvani",false],
+      ["2026-11-18","23:59","","ENA801","INL1 Part 3 peer feedback due","Canvas","Feedback and feedforward",true],
+      ["2026-11-23","13:15","15:00","DVA232","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-11-23","17:15","20:00","ENA801","Seminar 7","Zoom","Maria Damkjaer",false],
+      ["2026-11-25","09:15","12:00","DVA232","Lab","U2-036 / U2-006","Parallel rooms",false],
+      ["2026-11-30","13:15","15:00","DVA232","Lecture","Lambda","Afshin Ameri",false],
+      ["2026-12-02","09:15","12:00","DVA232","Lab","U2-036 / U2-006","Parallel rooms",false],
+      ["2026-12-04","14:30","17:30","DVA262","TEN1 later examination sitting","Västerås · room TBD","Use if needed; grades U/3/4/5",true],
+      ["2026-12-07","17:15","20:00","ENA801","Seminar 8","Zoom","Maria Damkjaer",false],
+      ["2026-12-09","09:15","12:00","DVA232","Lab","U2-036 / U2-006","Parallel rooms",false],
+      ["2026-12-21","13:15","16:00","DVA232","Project supervision","Zoom","Afshin Ameri",false],
+      ["2027-01-03","","","ENA801","TEN1 preparation deadline","Ladok + own laptop","Register for exam and complete SEB demo no later than today",true],
+      ["2027-01-05","09:15","12:00","DVA232","Project supervision","Zoom","Afshin Ameri",false],
+      ["2027-01-07","23:59","","ENA801","INL1 Part 4 oral presentation due","Canvas","10–15 minute video",true],
+      ["2027-01-07","23:59","","ENA801","INL1 Part 4 final essay due","Canvas","All earlier INL1 parts must be complete",true],
+      ["2027-01-13","09:15","12:00","DVA232","Project presentation (PRO1)","My","Scheduled assessment",true],
+      ["2027-01-13","14:30","17:30","ENA801","TEN1 Inspera examination","Västerås · room TBD","Bring ID and prepared laptop · connect to Eduroam",true],
+      ["2027-01-14","13:15","17:00","DVA262","Lab-demonstration window","By arrangement","Contact instructor by 7 Jan; exact time and place by arrangement",true]
+    ];
+
+    const thesisEvents = [
+      ["2026-09-01","TBA","","THESIS","Introduction seminar","Zoom · link TBA","Mandatory attendance · thesis process and first milestone",true],
+      ["2026-09-29","TBA","","THESIS","Topic acceptance","Email / process leads","Agree with a supervisor and email the accepted topic to Ronalds Cinks",true],
+      ["2026-10-01","TBA","","THESIS","Research-proposal seminar","Zoom · link TBA","Briefing on how to write the research proposal",false],
+      ["2026-10-20","TBA","","THESIS","Literature-review seminar","Zoom · link TBA","Briefing; exact time not published",false],
+      ["2026-10-22","TBA","","THESIS","Research-proposal presentation","Zoom · link TBA","Mandatory · formative grade 1–10 by committee",true],
+      ["2026-10-25","TBA","","THESIS","Research-proposal submission","Submission location TBA","Summative grade 1–10 by supervisor · must score above 4",true],
+      ["2026-12-01","TBA","","THESIS","Research-design/poster seminar","Zoom · link TBA","Briefing on research design and poster",false],
+      ["2026-12-03","TBA","","THESIS","Literature-review presentation","Zoom · link TBA","Mandatory · formative grade 1–10 by committee",true],
+      ["2026-12-06","TBA","","THESIS","Literature-review submission","Submission location TBA","About 80% of final version · must score above 4",true],
+      ["2026-12-18","TBA","","THESIS","Research-design/poster presentation","Zoom · link TBA","Formative grade 1–10 by committee",true]
+    ];
+
+    const rookieEvents = [
+      ["2026-08-25","16:00","18:00","ROOKIE","Reception","MDU Campus Västerås","International Committee Rookie period",false],
+      ["2026-08-26","16:00","18:00","ROOKIE","Reception","MDU Campus Västerås","International Committee Rookie period",false],
+      ["2026-08-27","16:00","19:00","ROOKIE","IKEA","Bus from Campus Västerås","International Committee Rookie period",false],
+      ["2026-08-28","13:00","16:00","ROOKIE","Welcoming","MDU Campus Eskilstuna","International Committee Rookie period",false],
+      ["2026-08-29","21:00","02:00 (+1 day)","ROOKIE","Welcoming Party","Kårhuset G6","International Committee Rookie period",false],
+      ["2026-08-31","17:00","20:00","ROOKIE","Student Mingel","Rosenhill (next to Studenttorget)","Optional · conflicts with mandatory meeting and ENA801",false],
+      ["2026-09-01","17:30","21:00","ROOKIE","Game Night","Rosenhill (next to Studenttorget)","International Committee Rookie period",false],
+      ["2026-09-02","20:00","","ROOKIE","O'Learys","Stora Gatan 2, 722 15 Västerås","End time not stated in PDF",false],
+      ["2026-09-03","18:00","21:30","ROOKIE","Quiz & Game","Kårhuset G6","International Committee Rookie period",false],
+      ["2026-09-05","14:00","19:00","ROOKIE","Grill + Volleyball","Lögarängensbadet","International Committee Rookie period",false],
+      ["2026-09-06","11:00","","ROOKIE","City Hunt","U-building, MDU Campus Västerås","End time not stated in PDF",false],
+      ["2026-09-07","17:00","18:00","ROOKIE","Library tour","U-building, MDU Campus Västerås","International Committee Rookie period",false],
+      ["2026-09-08","20:00","","ROOKIE","JumpYard","Hallsta Gårdsgata 22, 721 38 Västerås","End time not stated in PDF",false],
+      ["2026-09-09","20:00","","ROOKIE","O'Learys","Stora Gatan 2, 722 15 Västerås","End time not stated in PDF",false],
+      ["2026-09-10","18:00","21:00","ROOKIE","Movie Night","U-building, MDU Campus Västerås","International Committee Rookie period",false],
+      ["2026-09-11","20:00","02:00 (+1 day)","ROOKIE","Party","Kårhuset G6","International Committee Rookie period",false]
+    ];
+
+    events.push(...thesisEvents, ...rookieEvents);
+    events.sort((a, b) => `${a[0]} ${a[1]}`.localeCompare(`${b[0]} ${b[1]}`));
+
+    const mduEvents = [
+      ["2026-08-26","15:30","16:10","MDU","English campus tour","Campus Västerås","The Preview",false],
+      ["2026-08-27","12:00","16:00","MDU","Meet MDU support staff","Campus Västerås","The Preview",false],
+      ["2026-08-28","11:45","12:00","MDU","Board free bus to Eskilstuna","Campus Västerås","Bus departs at 12:00",false],
+      ["2026-08-31","16:15","18:00","MDU","Mandatory exchange-student meeting","BETA","Required attendance",false],
+      ["2026-10-08","10:00","15:00","MDU","Högvarv career fair","Campus Västerås","Optional; overlaps scheduled classes",false],
+      ["2027-01-17","","","MDU","Autumn semester ends","","Official semester end",false]
+    ];
+
+    const allEvents = [...events, ...mduEvents].sort((a, b) => `${a[0]} ${a[1]}`.localeCompare(`${b[0]} ${b[1]}`));
+
+    const body = document.getElementById("schedule-body");
+    const count = document.getElementById("schedule-count");
+    const eventCount = document.getElementById("event-count");
+    const upcomingDeadlines = document.getElementById("upcoming-deadlines");
+    const courseClass = { MDU: "mdu", ROOKIE: "rookie", CDT204: "cdt", DVA262: "dva262", ENA801: "ena", DVA232: "dva232", THESIS: "thesis" };
+    const courseName = {
+      MDU: "MDU",
+      ROOKIE: "Rookie period",
+      CDT204: "Computer Architecture",
+      DVA262: "Machine Learning Concepts",
+      ENA801: "Academic English",
+      DVA232: "Programming Mobile Applications",
+      THESIS: "Thesis milestones"
+    };
+    const dateLong = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Stockholm" });
+    const monthLong = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "Europe/Stockholm" });
+
+    function safe(text) {
+      return String(text).replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+    }
+
+    function render(filter = "all") {
+      const visible = allEvents.filter(event => filter === "all" || event[3] === filter || (filter === "assessment" && event[7]));
+      let html = "";
+      let activeMonth = "";
+      visible.forEach(event => {
+        const [iso, start, end, course, title, room, note, assessment] = event;
+        const date = new Date(`${iso}T12:00:00+01:00`);
+        const month = monthLong.format(date);
+        if (month !== activeMonth) {
+          html += `<tr class="month-row"><th colspan="6">${safe(month)}</th></tr>`;
+          activeMonth = month;
+        }
+        const time = start ? `${start}${end ? `–${end}` : ""}` : "All day";
+        html += `<tr>
+          <td class="date">${safe(dateLong.format(date))}</td>
+          <td class="time">${safe(time)}</td>
+          <td><span class="course-mini ${courseClass[course]}">${safe(course)}</span></td>
+          <td class="${assessment ? "event-assessment" : ""}">${safe(title)}</td>
+          <td class="room">${safe(room)}</td>
+          <td>${safe(note)}</td>
+        </tr>`;
+      });
+      body.innerHTML = html || `<tr><td class="empty" colspan="6">No published events match this filter.</td></tr>`;
+      const label = filter === "all" ? "all commitments" : filter === "assessment" ? "scheduled assessments" : filter === "ROOKIE" ? "IC Rookie period" : filter;
+      count.textContent = `${visible.length} schedule entr${visible.length === 1 ? "y" : "ies"} · ${label}`;
+    }
+
+    const calendarGrid = document.getElementById("calendar-grid");
+    const calendarMonth = document.getElementById("calendar-month");
+    const calendarPrev = document.getElementById("calendar-prev");
+    const calendarNext = document.getElementById("calendar-next");
+    const calendarToday = document.getElementById("calendar-today");
+    const semesterStart = new Date(2026, 7, 1);
+    const semesterEnd = new Date(2027, 0, 1);
+    const actualToday = new Date();
+    const todayStart = new Date(actualToday.getFullYear(), actualToday.getMonth(), actualToday.getDate());
+    const progressStart = new Date(2026, 7, 22);
+    const actualTodayMonth = new Date(actualToday.getFullYear(), actualToday.getMonth(), 1);
+    let shownMonth = actualTodayMonth < semesterStart || actualTodayMonth > semesterEnd ? new Date(semesterStart) : actualTodayMonth;
+    const allCalendarEvents = allEvents;
+    const weekdayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const calendarCourses = Object.keys(courseName);
+    const visibleCalendarCourses = new Set(calendarCourses);
+    const calendarFilterButtons = [...document.querySelectorAll("[data-calendar-course]")];
+    const calendarShowAll = document.querySelector("[data-calendar-all]");
+    const calendarLabs = document.querySelector("[data-calendar-labs]");
+    const calendarDeadlines = document.querySelector("[data-calendar-deadlines]");
+    const calendarZoom = document.querySelector("[data-calendar-zoom]");
+    let calendarLabsVisible = true;
+    let calendarDeadlinesVisible = true;
+    let calendarZoomVisible = true;
+
+    function isCalendarLabSession(event) {
+      const title = String(event[4]).toLowerCase();
+      const isRegularLab = title === "lab" || title.startsWith("lab session");
+      return isRegularLab && !event[7];
+    }
+
+    function isCalendarDeadline(event) {
+      const title = String(event[4]).toLowerCase();
+      return title.includes(" due") ||
+        title.includes("deadline") ||
+        title.includes("submission") ||
+        title.includes("acceptance");
+    }
+
+    function isCalendarZoomEvent(event) {
+      return String(event[5]).toLowerCase().includes("zoom");
+    }
+
+    const completedDeadlineKeys = new Set([
+      "2026-09-13|ENA801|INL1 Part 1 due",
+      "2026-09-14|CDT204|Assignment 1 due",
+      "2026-09-14|ENA801|Quiz 1 due"
+    ]);
+
+    function renderUpcomingDeadlines() {
+      const todayIso = isoDate(actualToday);
+      const visible = allEvents
+        .filter(event => event[0] >= todayIso && isCalendarDeadline(event))
+        .filter(event => !completedDeadlineKeys.has(`${event[0]}|${event[3]}|${event[4]}`))
+        .slice(0, 4);
+
+      upcomingDeadlines.innerHTML = visible.length ? visible.map(event => {
+        const [iso, start, , course, title, room] = event;
+        const date = new Date(`${iso}T12:00:00`);
+        const dateLabel = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(date);
+        const timeLabel = start && start !== "TBA" ? ` · ${start}` : "";
+        return `<article class="deadline-item">
+          <time datetime="${safe(iso)}">${safe(dateLabel + timeLabel)}</time>
+          <strong>${safe(title)}</strong>
+          <span>${safe(courseName[course] || course)}${room ? ` · ${safe(room)}` : ""}</span>
+        </article>`;
+      }).join("") : `<p class="deadline-empty">No upcoming dated deadlines are currently published.</p>`;
+    }
+
+    function isoDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function renderCalendar() {
+      const year = shownMonth.getFullYear();
+      const month = shownMonth.getMonth();
+      const first = new Date(year, month, 1);
+      const offset = (first.getDay() + 6) % 7;
+      const last = new Date(year, month + 1, 0);
+      const cellCount = Math.ceil((offset + last.getDate()) / 7) * 7;
+      const gridStart = new Date(year, month, 1 - offset);
+      const todayIso = isoDate(actualToday);
+      let html = weekdayNames.map(day => `<div class="calendar-weekday">${day}</div>`).join("");
+
+      for (let index = 0; index < cellCount; index += 1) {
+        const date = new Date(gridStart);
+        date.setDate(gridStart.getDate() + index);
+        const iso = isoDate(date);
+        const dayEvents = allCalendarEvents.filter(event =>
+          event[0] === iso &&
+          visibleCalendarCourses.has(event[3]) &&
+          (calendarLabsVisible || !isCalendarLabSession(event)) &&
+          (calendarDeadlinesVisible || !isCalendarDeadline(event)) &&
+          (calendarZoomVisible || !isCalendarZoomEvent(event))
+        );
+        const classes = ["calendar-day"];
+        if (date.getMonth() !== month) {
+          html += `<div class="calendar-day outside" aria-hidden="true"></div>`;
+          continue;
+        }
+        const hasPassed = date >= progressStart && date < todayStart;
+        if (iso === todayIso) classes.push("today");
+        if (hasPassed) classes.push("passed");
+        html += `<div class="${classes.join(" ")}"><span class="calendar-date">${date.getDate()}</span>${hasPassed ? '<span class="sr-only">Day passed</span>' : ""}`;
+        dayEvents.forEach(event => {
+          const [, start, end, course, title, room, note] = event;
+          const isConflict = iso === "2026-08-31" && (course === "ENA801" || course === "ROOKIE" || title.startsWith("Mandatory"));
+          const time = start ? `${start}${end ? `–${end}` : ""}` : "All day";
+          const name = courseName[course] || course;
+          const label = title === name ? name : `${name} · ${title}`;
+          const tooltip = `${time} · ${label}${room ? ` · ${room}` : ""}${note ? ` · ${note}` : ""}`;
+          html += `<span class="calendar-event ${courseClass[course]}${isConflict ? " conflict" : ""}" title="${safe(tooltip)}"><b>${safe(start || "All day")}</b>${safe(label)}</span>`;
+        });
+        html += "</div>";
+      }
+
+      calendarMonth.textContent = monthLong.format(new Date(year, month, 15));
+      calendarGrid.innerHTML = html;
+      calendarPrev.disabled = shownMonth <= semesterStart;
+      calendarNext.disabled = shownMonth >= semesterEnd;
+    }
+
+    function syncCalendarFilters() {
+      calendarFilterButtons.forEach(button => {
+        button.setAttribute("aria-pressed", String(visibleCalendarCourses.has(button.dataset.calendarCourse)));
+      });
+      calendarLabs.setAttribute("aria-pressed", String(calendarLabsVisible));
+      calendarDeadlines.setAttribute("aria-pressed", String(calendarDeadlinesVisible));
+      calendarZoom.setAttribute("aria-pressed", String(calendarZoomVisible));
+      calendarShowAll.setAttribute("aria-pressed", String(
+        visibleCalendarCourses.size === calendarCourses.length &&
+        calendarLabsVisible &&
+        calendarDeadlinesVisible &&
+        calendarZoomVisible
+      ));
+    }
+
+    calendarFilterButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const course = button.dataset.calendarCourse;
+        if (visibleCalendarCourses.has(course)) visibleCalendarCourses.delete(course);
+        else visibleCalendarCourses.add(course);
+        syncCalendarFilters();
+        renderCalendar();
+      });
+    });
+
+    calendarLabs.addEventListener("click", () => {
+      calendarLabsVisible = !calendarLabsVisible;
+      syncCalendarFilters();
+      renderCalendar();
+    });
+
+    calendarDeadlines.addEventListener("click", () => {
+      calendarDeadlinesVisible = !calendarDeadlinesVisible;
+      syncCalendarFilters();
+      renderCalendar();
+    });
+
+    calendarZoom.addEventListener("click", () => {
+      calendarZoomVisible = !calendarZoomVisible;
+      syncCalendarFilters();
+      renderCalendar();
+    });
+
+    calendarShowAll.addEventListener("click", () => {
+      calendarCourses.forEach(course => visibleCalendarCourses.add(course));
+      calendarLabsVisible = true;
+      calendarDeadlinesVisible = true;
+      calendarZoomVisible = true;
+      syncCalendarFilters();
+      renderCalendar();
+    });
+
+    calendarPrev.addEventListener("click", () => {
+      shownMonth = new Date(shownMonth.getFullYear(), shownMonth.getMonth() - 1, 1);
+      renderCalendar();
+    });
+    calendarNext.addEventListener("click", () => {
+      shownMonth = new Date(shownMonth.getFullYear(), shownMonth.getMonth() + 1, 1);
+      renderCalendar();
+    });
+    calendarToday.addEventListener("click", () => {
+      shownMonth = actualTodayMonth < semesterStart || actualTodayMonth > semesterEnd ? new Date(semesterStart) : new Date(actualTodayMonth);
+      renderCalendar();
+    });
+
+    document.querySelectorAll(".filter").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".filter").forEach(item => item.setAttribute("aria-pressed", "false"));
+        button.setAttribute("aria-pressed", "true");
+        render(button.dataset.filter);
+      });
+    });
+
+    eventCount.textContent = allEvents.length;
+    renderUpcomingDeadlines();
+    render();
+    syncCalendarFilters();
+    renderCalendar();
+  </script>
+</body>
+</html>

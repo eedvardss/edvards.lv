@@ -561,6 +561,30 @@ export default {
   async fetch(request, env): Promise<Response> {
     const url = new URL(request.url);
 
+    if (url.pathname === '/mdu' || url.pathname === '/mdu/') {
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        return new Response('Method not allowed', { status: 405, headers: { Allow: 'GET, HEAD' } });
+      }
+
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = '/mdu/';
+      const assetResponse = await env.ASSETS.fetch(new Request(assetUrl, request));
+      const headers = new Headers(assetResponse.headers);
+      for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+        headers.set(name, value);
+      }
+      headers.set('Cache-Control', 'no-cache');
+      headers.set(
+        'Content-Security-Policy',
+        "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+      );
+      return new Response(assetResponse.body, {
+        status: assetResponse.status,
+        statusText: assetResponse.statusText,
+        headers,
+      });
+    }
+
     if (url.pathname === '/api/status') {
       if (request.method !== 'GET') {
         return statusJson({ error: 'Method not allowed' }, 405, { Allow: 'GET' });

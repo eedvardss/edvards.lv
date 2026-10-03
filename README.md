@@ -1,8 +1,9 @@
 # manbesi.lv
 
-Cloudflare Worker serving two separate experiences:
+Cloudflare Worker serving the domain's public pages and private workspace:
 
-- `/` — a public, remotely updated “man besī” status page.
+- `/` and `/alus` — the Riga beer map, served through the `BEER_MAP` service binding.
+- `/mdu` — the saved MDU autumn 2026 semester schedule, including its interactive calendar.
 - `/p2p/` — the existing private Cloudflare Access-protected P2P workspace.
 
 ## Status API
